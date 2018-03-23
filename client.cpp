@@ -49,18 +49,19 @@ bool ConnectToServer(char *serverIp,int port)
 
 Mat GetImageFromServer()
 {
- 	memset(&msg, 0, sizeof(msg));//clear the buffer
+    memset(&msg, 0, sizeof(msg));//clear the buffer
     recv(clientSd, (char*)&msg, sizeof(msg), 0);
-	vector<char> arr(msg, msg + sizeof(msg) - 1);
-	Mat decodedImage= imdecode(arr, CV_LOAD_IMAGE_COLOR);
-	return decodedImage;
+    vector<char> arr(msg, msg + sizeof(msg) - 1);
+    Mat decodedImage= imdecode(arr, CV_LOAD_IMAGE_COLOR);
+    return decodedImage;
+    // return imread("1.jpg", CV_LOAD_IMAGE_COLOR); 
 }
 
 void SendDataToServer(float torque,float angle)
 {
-	memset(&msg, 0, sizeof(msg));//clear the buffer
+    memset(&msg, 0, sizeof(msg));//clear the buffer
         string data=to_string(torque)+"|"+to_string(angle);
-	cout<<data<<endl;
+    cout<<data<<endl;
         send(clientSd, data.c_str() ,data.length(), 0);
 }
 
@@ -83,16 +84,16 @@ int main(int argc, char *argv[])
         cerr << "Usage: ip_address port" << endl; exit(0); 
     }
     char *serverIp = argv[1]; int port = atoi(argv[2]); 
-	
+    
     if(!ConnectToServer(serverIp,port))
     {
-		return 0;
+        return 0;
     }
 
     do
     {
         Mat img = GetImageFromServer();
-    	//xu ly anh img
+        //xu ly anh img
 
         Point carPosition(img.cols / 2, img.rows);
 
@@ -104,7 +105,7 @@ int main(int argc, char *argv[])
 
         if (!img.empty()) imshow("src",img);
         waitKey(1);
-    	SendDataToServer(4, 90 - angle);
+        SendDataToServer(4, 90 - angle);
     } while (1);
 
     close(clientSd);

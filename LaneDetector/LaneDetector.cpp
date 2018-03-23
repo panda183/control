@@ -23,16 +23,19 @@ void LaneDetector::findLane()
         printf("Error: input is empty\n");
         return;
     }
-    int threshold = 70; // [0 - 255], >threshold is white, otherwise is black
+    int THRESHOLD_GREY = 100; // [0 - 255], >threshold is white, otherwise is black
+    int THRESHOLD_LANE_LENGTH = 200;
+
     int length[img.rows][img.cols];
+    int fullLength[img.rows][img.cols];
 
     for (int i = 0; i < img.rows; i++)
         for (int j = 0; j < img.cols; j++)
-            length[i][j] = 0;
+            fullLength[i][j] = length[i][j] = 0;
 
     for (int i = 0; i < img.rows; i++)
         for (int j = 0; j < img.cols; j++)
-            if (img.at<uchar>(i, j) > threshold)
+            if (img.at<uchar>(i, j) > THRESHOLD_GREY)
             {
                 if (i == 0)
                 {
@@ -47,15 +50,27 @@ void LaneDetector::findLane()
                 length[i][j] += 1;
             }
 
-    Vec3b red(0, 0, 255);
-    for (int i = 1; i < img.rows; i++)
+    for (int i = img.rows - 2; i >= 0; i--)
         for (int j = 0; j < img.cols; j++)
         {
-            if (length[i][j] == length[i - 1][j] + 1) src.at<Vec3b>(i, j) = red;
-            if ((j - 1 >= 0) && (length[i][j] == length[i - 1][j - 1] + 1)) src.at<Vec3b>(i, j) = red;
-            if ((j + 1 < img.cols) && (length[i][j] == length[i - 1][j + 1] + 1)) src.at<Vec3b>(i, j) = red;
-            if ((j - 2 >= 0) && (length[i][j] == length[i - 1][j - 2] + 1)) src.at<Vec3b>(i, j) = red;
-            if ((j + 2 < img.cols) && (length[i][j] == length[i - 1][j + 2] + 1)) src.at<Vec3b>(i, j) = red;
+            fullLength[i][j] = length[i][j];
+            if (length[i][j] == length[i + 1][j] - 1) fullLength[i][j] = max(fullLength[i][j], fullLength[i + 1][j]);
+            if ((j - 1 >= 0) && (length[i][j] == length[i + 1][j - 1] - 1)) fullLength[i][j] = max(fullLength[i + 1][j - 1], fullLength[i][j]);
+            if ((j + 1 < img.cols) && (length[i][j] == length[i + 1][j + 1] - 1)) fullLength[i][j] = max(fullLength[i + 1][j + 1], fullLength[i][j]);
+            if ((j - 2 >= 0) && (length[i][j] == length[i + 1][j - 2] - 1)) fullLength[i][j] = max(fullLength[i + 1][j - 2], fullLength[i][j]);
+            if ((j + 2 < img.cols) && (length[i][j] == length[i + 1][j + 2] - 1)) fullLength[i][j] = max(fullLength[i + 1][j + 2], fullLength[i][j]);
         }
-    imshow("lane", src);
+
+    Vec3b red(0, 0, 255);
+
+    for (int i = 0; i < img.rows; i++)
+        for (int j = 0; j < img.cols; j++)
+            if (fullLength[i][j] > THRESHOLD_LANE_LENGTH) src.at<Vec3b>(i, j) = red;
+
+    for (int i = img.cols - 1; i >= 0; i--)
+        if (fullLength[img.rows * 2 / 3][i] > THRESHOLD_LANE_LENGTH)
+        {
+            laneCenter = Point(i - 250, img.rows * 2 / 3);
+            return;
+        }
 }
