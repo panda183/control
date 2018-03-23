@@ -8,9 +8,9 @@ class LaneDetector
 public:
     LaneDetector();
     ~LaneDetector();
-    void inputImg(const Mat& img);
+    void inputImg(Mat img);
     void findLane();
     Point laneCenter;
 private:
-    Mat img;   
+    Mat img, src;
 };

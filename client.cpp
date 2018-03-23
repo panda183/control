@@ -66,7 +66,7 @@ void SendDataToServer(float torque,float angle)
 
 double computeAngle(Point A, Point O, Point B)
 {
-    if ((A == O) || (B == O)) return 0;
+    if ((A == O) || (B == O)) return 90;
     Point vOA = A - O;
     Point vOB = B - O;
     double dOA = sqrt(vOA.x * vOA.x + vOA.y * vOA.y);
