@@ -21,6 +21,14 @@ Point Driver::getTarget()
     if (this->lastTarget == Point(0, 0))
         lastTarget = Point(img.cols / 2, img.rows * 2 / 3);
     Point p = ld.findLanePoint(hug, this->lastTarget);
+    if (p == Point(0, 0)) 
+    {
+        if (hug == l)
+            hug = r;
+        else 
+            hug = l;
+        p = ld.findLanePoint(hug, this->lastTarget);
+    }
     int adjust = img.cols / 3;
     if (hug == l)
         p.x += adjust;
@@ -29,3 +37,4 @@ Point Driver::getTarget()
     lastTarget = p;
     return p;
 }
+

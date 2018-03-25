@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
     {
         return 0;
     }
-
+    
     Driver driver;
     driver.setHug(r);
     do

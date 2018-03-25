@@ -29,6 +29,7 @@ void LaneDetector::findLane()
     int d[img.rows][img.cols];
     int fullLength[1000];
     int index[img.rows][img.cols];
+    int area[1000];
     int ind = 0;
     queue<Point> q;
 
@@ -37,7 +38,6 @@ void LaneDetector::findLane()
         {
             d[i][j] = index[i][j] = oo;
         }
-
     for (int i = yLimit; i < img.rows; i++)
         for (int j = 0; j < img.cols; j++)
         {
@@ -46,7 +46,8 @@ void LaneDetector::findLane()
 
             d[i][j] = 0;
             index[i][j] = ind;
-            fullLength[ind] = 0;
+            int s = 1;
+            fullLength[ind] = 1;
             q.push(Point(i, j));
 
             while (!q.empty())
@@ -62,9 +63,11 @@ void LaneDetector::findLane()
                     index[v.x][v.y] = ind;
                     fullLength[ind] = max(fullLength[ind], d[v.x][v.y]);
                     q.push(v);
+                    s += 1;
                 }
                 q.pop();
             }
+            area[ind] = s;
             ind += 1;
         }
     
@@ -72,7 +75,9 @@ void LaneDetector::findLane()
     for (int i = 0; i < img.rows; i++)
         for (int j = 0; j < img.cols; j++)
         {
-            if (index[i][j] == oo) continue;
+            ind = index[i][j];
+            if (ind == oo) continue;
+            if (area[ind] / fullLength[ind] > img.cols / 20) continue; 
             if (fullLength[index[i][j]] > THRESHOLD_LANE_LENGTH) src.at<Vec3b>(i, j) = red;
         }
 }
@@ -85,7 +90,10 @@ Point LaneDetector::findLanePoint(side hug, Point start)
     Point p = start;
     printf("%i %i \n", p.x, p.y);
     while (src.at<Vec3b>(p) != red)
+    {
+        if ((p.x < 0) || (p.x >= img.cols)) return Point(0, 0);
         p += move;
+    }
     printf("%i %i \n", p.x, p.y);
     return p;
 }
