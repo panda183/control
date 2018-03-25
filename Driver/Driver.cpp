@@ -1,4 +1,6 @@
 #include "Driver.h"
+#include "../SignDetector/SignDetector.h"
+#include <iostream>
 
 Driver::Driver() {}
 
@@ -13,6 +15,11 @@ void Driver::inputImg(Mat img)
 {
     this->ld.inputImg(img);
     this->img = img;
+    hug = sd::DetectSign(img);
+    if (hug == l)
+        std::cout << "left" << std::endl;
+    else
+        std::cout << "right" << std::endl;
     ld.findLane();
 }
 
@@ -29,6 +36,8 @@ Point Driver::getTarget()
             hug = l;
         p = ld.findLanePoint(hug, this->lastTarget);
     }
+    if (p == Point(0, 0))
+        return lastTarget;
     int adjust = img.cols / 3;
     if (hug == l)
         p.x += adjust;

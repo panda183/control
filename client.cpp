@@ -18,13 +18,14 @@
 #include <opencv2/opencv.hpp>
 #include <cmath>
 #include "Driver/Driver.h"
+#include "SignDetector/SignDetector.h"
 #define PI 3.14159
 
 using namespace std;
 using namespace cv;
 //Client side
 //create a message buffer
-char msg[100000]; 
+char msg[100000];
 int clientSd;
 
 bool ConnectToServer(char *serverIp,int port)
@@ -89,14 +90,16 @@ int main(int argc, char *argv[])
     {
         return 0;
     }
-    
+    sd::init();
     Driver driver;
     driver.setHug(r);
     do
     {
         Mat img = GetImageFromServer();
         //xu ly anh img
-
+        if (img.empty())
+            continue;
+        
         Point carPosition(img.cols / 2, img.rows);
 
         driver.inputImg(img);

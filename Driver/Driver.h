@@ -1,3 +1,6 @@
+#ifndef DRIVER_H
+#define DRIVER_H
+
 #include "../LaneDetector/LaneDetector.h"
 
 class Driver
@@ -14,3 +17,5 @@ private:
     Mat img;
     Point lastTarget;
 };
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef LANE_DETECTOR_H
+#define LANE_DETECTOR_H
+
 #include <opencv2/opencv.hpp>
 #include <vector>
 using namespace std;
@@ -19,3 +22,5 @@ public:
 private:
     Mat img, src;
 };
+
+#endif
