@@ -1,6 +1,8 @@
 #include "SignDetector.h"
 
 Mat sd::leftSign, sd::rightSign;
+bool sd::signDetected;
+side sd::turn;
 
 void sd::init()
 {
@@ -8,28 +10,29 @@ void sd::init()
     rightSign = imread("right.jpg");
 }
 
-side sd::DetectSign(Mat &src)
+void sd::DetectSign(Mat &src)
 {
+    signDetected = false;
     int cols = src.cols;
     int rows = src.rows;
     Mat hsv, gray;
     Rect roiDetect = Rect(int(cols * 0.3), int(rows * 0.1), int(cols * 0.46), int(rows * 0.3));
     rectangle(src, roiDetect, Scalar(0, 0, 255));
     cvtColor(src(roiDetect), hsv, COLOR_BGR2HSV);
-    int minH=100, minS=100, minV= 60, maxH=135, maxS=255, maxV=255;
+    int minH=80, minS=130, minV= 60, maxH=135, maxS=255, maxV=255;
     Scalar min = Scalar(minH, minS, minV);   //HSV VALUE
     Scalar max = Scalar(maxH, maxS, maxV); //HSV VALUE
     inRange(hsv, min, max, gray);
-
+    // imshow("HSV",gray);
     erode(gray, gray, Mat(), Point(-1, -1), 2, 1, 1);
     dilate(gray, gray, Mat(), Point(-1, -1), 8, 1, 1);
-    //imshow("HSV",gray);
+     // imshow("dilate",gray);
     vector<vector<Point>> contours;
     findContours(gray, contours, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
     for (int i = 0; i < contours.size(); i++)
     {
         Rect rect = boundingRect(contours[i]);
-        if (abs((rect.width * 1.0 / rect.height) - 1) < 0.1 && rect.width - 6 > int(cols * 0.06) && rect.width - 6 < int(cols * 0.125))
+        if (abs((rect.width * 1.0 / rect.height) - 1) < 0.1 && rect.width - 6 > int(cols * 0.03) && rect.width - 6 < int(cols * 0.110))
         {
             rect.x += roiDetect.x + 6;
             rect.y += roiDetect.y + 6;
@@ -40,10 +43,11 @@ side sd::DetectSign(Mat &src)
 
             imshow("src", src);
 
+            signDetected = true;
             if (recognizeSign(matsign))
-                return r;
+                turn = r;
             else 
-                return l;
+                turn = l;
         }
     }
 }

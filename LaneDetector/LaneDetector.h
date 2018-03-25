@@ -8,7 +8,7 @@ using namespace cv;
 
 enum side
 {
-    l, r
+    l = -1, r = 1
 };
 
 class LaneDetector

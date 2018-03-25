@@ -16,6 +16,7 @@ private:
     LaneDetector ld;
     Mat img;
     Point lastTarget;
+    int signOverride = 0;
 };
 
 #endif

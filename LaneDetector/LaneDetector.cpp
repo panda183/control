@@ -88,12 +88,10 @@ Point LaneDetector::findLanePoint(side hug, Point start)
     Point move(1, 0);
     if (hug == l) move.x = -1;
     Point p = start;
-    printf("%i %i \n", p.x, p.y);
     while (src.at<Vec3b>(p) != red)
     {
         if ((p.x < 0) || (p.x >= img.cols)) return Point(0, 0);
         p += move;
     }
-    printf("%i %i \n", p.x, p.y);
     return p;
 }

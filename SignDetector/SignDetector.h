@@ -7,11 +7,13 @@
 namespace sd
 {
     extern Mat leftSign, rightSign;
+    extern bool signDetected;
+    extern side turn;
     void init();
     double similar(Mat &img1, Mat &img2);
     void equalizeHistBGR(Mat &src, Mat &dst);
     double distance(Point p1, Point p2);
-    side DetectSign(Mat &src);
+    void DetectSign(Mat &src);
     int recognizeSign(Mat &sign);
 }
 

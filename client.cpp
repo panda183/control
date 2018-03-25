@@ -61,9 +61,8 @@ Mat GetImageFromServer()
 void SendDataToServer(float torque,float angle)
 {
     memset(&msg, 0, sizeof(msg));//clear the buffer
-        string data=to_string(torque)+"|"+to_string(angle);
-    cout<<data<<endl;
-        send(clientSd, data.c_str() ,data.length(), 0);
+    string data = to_string(torque) + "|" + to_string(angle);
+    send(clientSd, data.c_str(), data.length(), 0);
 }
 
 double computeAngle(Point A, Point O, Point B)
@@ -92,14 +91,14 @@ int main(int argc, char *argv[])
     }
     sd::init();
     Driver driver;
-    driver.setHug(r);
+    driver.setHug(l);
     do
     {
         Mat img = GetImageFromServer();
         //xu ly anh img
         if (img.empty())
             continue;
-        
+
         Point carPosition(img.cols / 2, img.rows);
 
         driver.inputImg(img);
