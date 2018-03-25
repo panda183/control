@@ -17,7 +17,7 @@ void LaneDetector::inputImg(Mat img)
     cvtColor(img, this->img, COLOR_RGB2GRAY);
 }
 
-Point LaneDetector::findLane(side hug, Point start)
+void LaneDetector::findLane()
 {
     int THRESHOLD_GREY = 120; // [0 - 255], >threshold is white, otherwise is black
     int THRESHOLD_LANE_LENGTH = img.rows / 4;
@@ -75,7 +75,11 @@ Point LaneDetector::findLane(side hug, Point start)
             if (index[i][j] == oo) continue;
             if (fullLength[index[i][j]] > THRESHOLD_LANE_LENGTH) src.at<Vec3b>(i, j) = red;
         }
+}
 
+Point LaneDetector::findLanePoint(side hug, Point start)
+{
+    Vec3b red(0, 0, 255);
     Point move(1, 0);
     if (hug == l) move.x = -1;
     Point p = start;

@@ -14,7 +14,8 @@ public:
     LaneDetector();
     ~LaneDetector();
     void inputImg(Mat img);
-    Point findLane(side hug, Point start);
+    void findLane();
+    Point findLanePoint(side hug, Point start);
 private:
     Mat img, src;
 };
