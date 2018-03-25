@@ -1,6 +1,7 @@
 #include "LaneDetector.h"
 #include <algorithm>
 #include <cstring>
+#include <vector>
 #include <queue>
 
 LaneDetector::LaneDetector() {}
@@ -27,9 +28,9 @@ void LaneDetector::findLane()
     int dy[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
 
     int d[img.rows][img.cols];
-    int fullLength[1000];
+    vector<int> fullLength;
     int index[img.rows][img.cols];
-    int area[1000];
+    vector<int> area;
     int ind = 0;
     queue<Point> q;
 
@@ -47,7 +48,7 @@ void LaneDetector::findLane()
             d[i][j] = 0;
             index[i][j] = ind;
             int s = 1;
-            fullLength[ind] = 1;
+            fullLength.push_back(1);
             q.push(Point(i, j));
 
             while (!q.empty())
@@ -67,7 +68,7 @@ void LaneDetector::findLane()
                 }
                 q.pop();
             }
-            area[ind] = s;
+            area.push_back(s);
             ind += 1;
         }
     
