@@ -17,7 +17,7 @@
 #include <unistd.h>
 #include <opencv2/opencv.hpp>
 #include <cmath>
-#include "LaneDetector/LaneDetector.h"
+#include "Driver/Driver.h"
 #define PI 3.14159
 
 using namespace std;
@@ -90,6 +90,8 @@ int main(int argc, char *argv[])
         return 0;
     }
 
+    Driver driver;
+    driver.setHug(r);
     do
     {
         Mat img = GetImageFromServer();
@@ -97,11 +99,10 @@ int main(int argc, char *argv[])
 
         Point carPosition(img.cols / 2, img.rows);
 
-        LaneDetector ld;
-        ld.inputImg(img);
-        ld.findLane();
-        double angle = computeAngle(ld.laneCenter, carPosition, carPosition + Point(1, 0));
-        line(img, ld.laneCenter, carPosition, Scalar(255, 255, 255));
+        driver.inputImg(img);
+        Point target = driver.getTarget();
+        double angle = computeAngle(target, carPosition, carPosition + Point(1, 0));
+        line(img, target, carPosition, Scalar(255, 255, 255));
 
         if (!img.empty()) imshow("src",img);
         waitKey(1);
