@@ -6,10 +6,8 @@
 using namespace std;
 using namespace cv;
 
-enum side
-{
-    l = -1, r = 1
-};
+#define LEFT -1
+#define RIGHT 1
 
 class LaneDetector
 {
@@ -18,7 +16,7 @@ public:
     ~LaneDetector();
     void inputImg(Mat img);
     void findLane();
-    Point findLanePoint(side hug, Point start);
+    Point findLanePoint(int hug, Point start);
 private:
     Mat img, src;
 };

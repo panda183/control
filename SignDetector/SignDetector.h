@@ -8,7 +8,7 @@ namespace sd
 {
     extern Mat leftSign, rightSign;
     extern bool signDetected;
-    extern side turn;
+    extern int turn;
     void init();
     double similar(Mat &img1, Mat &img2);
     void equalizeHistBGR(Mat &src, Mat &dst);

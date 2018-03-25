@@ -8,9 +8,9 @@ class Driver
 public:
     Driver();
     ~Driver();
-    side hug;
+    int hug;
     Point getTarget();
-    void setHug(side hug);
+    void setHug(int hug);
     void inputImg(Mat img);
 private:
     LaneDetector ld;

@@ -6,7 +6,7 @@ Driver::Driver() {}
 
 Driver::~Driver() {}
 
-void Driver::setHug(side hug)
+void Driver::setHug(int hug)
 {
     this->hug = hug;
 }
@@ -37,19 +37,13 @@ Point Driver::getTarget()
             signOverride -= 1;
             return Point(img.cols / 2 + hug * 5, img.rows * 2 / 3);
         }
-        if (hug == l)
-            hug = r;
-        else 
-            hug = l;
+        hug = -hug;
         p = ld.findLanePoint(hug, this->lastTarget);
     }
     if (p == Point(0, 0))
         return lastTarget;
     int adjust = img.cols / 3;
-    if (hug == l)
-        p.x += adjust;
-    else
-        p.x -= adjust;
+    p.x -= hug * adjust;
     lastTarget = p;
     return p;
 }

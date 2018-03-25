@@ -2,7 +2,7 @@
 
 Mat sd::leftSign, sd::rightSign;
 bool sd::signDetected;
-side sd::turn;
+int sd::turn;
 
 void sd::init()
 {
@@ -19,7 +19,7 @@ void sd::DetectSign(Mat &src)
     Rect roiDetect = Rect(int(cols * 0.3), int(rows * 0.1), int(cols * 0.46), int(rows * 0.3));
     rectangle(src, roiDetect, Scalar(0, 0, 255));
     cvtColor(src(roiDetect), hsv, COLOR_BGR2HSV);
-    int minH=80, minS=130, minV= 60, maxH=135, maxS=255, maxV=255;
+    int minH = 80, minS = 130, minV = 60, maxH = 135, maxS = 255, maxV = 255;
     Scalar min = Scalar(minH, minS, minV);   //HSV VALUE
     Scalar max = Scalar(maxH, maxS, maxV); //HSV VALUE
     inRange(hsv, min, max, gray);
@@ -41,13 +41,8 @@ void sd::DetectSign(Mat &src)
             rectangle(src, rect, Scalar(0, 0, 255));
             Mat matsign = src(rect);
 
-            imshow("src", src);
-
             signDetected = true;
-            if (recognizeSign(matsign))
-                turn = r;
-            else 
-                turn = l;
+            turn = recognizeSign(matsign);
         }
     }
 }
@@ -57,8 +52,8 @@ int sd::recognizeSign(Mat &sign)
     double p1 = similar(sign, leftSign);
     double p2 = similar(sign, rightSign);
     if (p1 > p2)
-        return 0;
-    return 1;
+        return LEFT;
+    return RIGHT;
 }
 
 double sd::distance(Point p1, Point p2)

@@ -23,7 +23,7 @@
 
 using namespace std;
 using namespace cv;
-//Client side
+//Client int
 //create a message buffer
 char msg[100000];
 int clientSd;
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
     }
     sd::init();
     Driver driver;
-    driver.setHug(l);
+    driver.setHug(LEFT);
     do
     {
         Mat img = GetImageFromServer();

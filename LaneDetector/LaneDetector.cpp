@@ -82,11 +82,10 @@ void LaneDetector::findLane()
         }
 }
 
-Point LaneDetector::findLanePoint(side hug, Point start)
+Point LaneDetector::findLanePoint(int hug, Point start)
 {
     Vec3b red(0, 0, 255);
-    Point move(1, 0);
-    if (hug == l) move.x = -1;
+    Point move(hug, 0);
     Point p = start;
     while (src.at<Vec3b>(p) != red)
     {
