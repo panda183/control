@@ -9,14 +9,17 @@ public:
     Driver();
     ~Driver();
     int hug;
-    Point getTarget();
+    void findTarget();
     void setHug(int hug);
     void inputImg(Mat img);
+    double getSteering();
+    Point target;
 private:
     LaneDetector ld;
     Mat img;
     Point lastTarget;
     int signOverride = 0;
+    Point diff;
 };
 
 #endif

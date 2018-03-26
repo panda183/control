@@ -19,7 +19,6 @@
 #include <cmath>
 #include "Driver/Driver.h"
 #include "SignDetector/SignDetector.h"
-#define PI 3.14159
 
 using namespace std;
 using namespace cv;
@@ -65,18 +64,6 @@ void SendDataToServer(float torque,float angle)
     send(clientSd, data.c_str(), data.length(), 0);
 }
 
-double computeAngle(Point A, Point O, Point B)
-{
-    if ((A == O) || (B == O)) return 90;
-    Point vOA = A - O;
-    Point vOB = B - O;
-    double dOA = sqrt(vOA.x * vOA.x + vOA.y * vOA.y);
-    double dOB = sqrt(vOB.x * vOB.x + vOB.y * vOB.y);
-    double res = acos(vOA.dot(vOB) / (dOA * dOB));
-    res = res / PI * 180;
-    return res;
-}
-
 int main(int argc, char *argv[])
 {
     if(argc != 3)
@@ -102,13 +89,13 @@ int main(int argc, char *argv[])
         Point carPosition(img.cols / 2, img.rows);
 
         driver.inputImg(img);
-        Point target = driver.getTarget();
-        double angle = computeAngle(target, carPosition, carPosition + Point(1, 0));
-        line(img, target, carPosition, Scalar(255, 255, 255));
+        double angle = driver.getSteering();
+        
+        line(img, driver.target, carPosition, Scalar(255, 255, 255));
 
         if (!img.empty()) imshow("src",img);
         waitKey(1);
-        SendDataToServer(4, 90 - angle);
+        SendDataToServer(10, angle);
     } while (1);
 
     close(clientSd);
