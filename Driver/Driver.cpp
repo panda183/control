@@ -32,7 +32,7 @@ void Driver::inputImg(Mat img)
     if (sd::signDetected)
     {
         hug = sd::turn;
-        this->signOverride = 30;
+        this->signOverride = 15;
     }
     ld.findLane();
     findTarget();
@@ -50,7 +50,6 @@ void Driver::findTarget()
     {
         if (signOverride)
         {
-            signOverride -= 1;
             target = Point(img.cols / 2 + hug * 10, targetRow);
             return;
         }
@@ -64,7 +63,11 @@ void Driver::findTarget()
         diff = target - lastTarget;
         lastTarget = target;
     }
-    cout << target.x << " " << lastTarget.x << " " << diff.x << endl;
+    if (signOverride) signOverride -= 1;
+    if (signOverride > 0)
+        cout << signOverride << endl;
+    else
+        cout << endl;
 
     if (target == Point(0, 0))
     {
