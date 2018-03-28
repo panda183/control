@@ -78,8 +78,9 @@ void LaneDetector::findLane()
         {
             ind = index[i][j];
             if (ind == oo) continue;
-            if (area[ind] / fullLength[ind] > img.cols / 20) continue; 
-            if (fullLength[index[i][j]] > THRESHOLD_LANE_LENGTH) src.at<Vec3b>(i, j) = red;
+            if (area[ind] / fullLength[ind] > img.cols / 17) continue; 
+            //if (fullLength[index[i][j]] < THRESHOLD_LANE_LENGTH) continue;
+            src.at<Vec3b>(i, j) = red;
         }
 }
 

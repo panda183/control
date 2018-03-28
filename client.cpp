@@ -29,11 +29,11 @@ int clientSd;
 
 bool ConnectToServer(char *serverIp,int port)
 {
-    //setup a socket and connection tools 
-    struct hostent* host = gethostbyname(serverIp); 
-    sockaddr_in sendSockAddr;   
-    bzero((char*)&sendSockAddr, sizeof(sendSockAddr)); 
-    sendSockAddr.sin_family = AF_INET; 
+    //setup a socket and connection tools
+    struct hostent* host = gethostbyname(serverIp);
+    sockaddr_in sendSockAddr;
+    bzero((char*)&sendSockAddr, sizeof(sendSockAddr));
+    sendSockAddr.sin_family = AF_INET;
     sendSockAddr.sin_addr.s_addr = inet_addr(inet_ntoa(*(struct in_addr*)*host->h_addr_list));
     sendSockAddr.sin_port = htons(port);
     clientSd = socket(AF_INET, SOCK_STREAM, 0);
@@ -54,7 +54,7 @@ Mat GetImageFromServer()
     vector<char> arr(msg, msg + sizeof(msg) - 1);
     Mat decodedImage= imdecode(arr, CV_LOAD_IMAGE_COLOR);
     return decodedImage;
-    // return imread("1.jpg", CV_LOAD_IMAGE_COLOR); 
+    // return imread("1.jpg", CV_LOAD_IMAGE_COLOR);
 }
 
 void SendDataToServer(float torque,float angle)
@@ -68,9 +68,9 @@ int main(int argc, char *argv[])
 {
     if(argc != 3)
     {
-        cerr << "Usage: ip_address port" << endl; exit(0); 
+        cerr << "Usage: ip_address port" << endl; exit(0);
     }
-    char *serverIp = argv[1]; int port = atoi(argv[2]); 
+    char *serverIp = argv[1]; int port = atoi(argv[2]);
     
     if(!ConnectToServer(serverIp,port))
     {
@@ -95,9 +95,9 @@ int main(int argc, char *argv[])
 
         if (!img.empty()) imshow("src",img);
         waitKey(1);
-        SendDataToServer(10, angle);
+        SendDataToServer(18, angle);
     } while (1);
 
     close(clientSd);
-    return 0;    
+    return 0;
 }

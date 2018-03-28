@@ -40,8 +40,8 @@ void Driver::inputImg(Mat img)
 
 void Driver::findTarget()
 {
-    diff = Point(0, 0);
-    int targetRow = img.rows * 3 / 5;
+    diff = 0;
+    int targetRow = img.rows * 0.5;
     if (this->lastTarget == Point(0, 0))
         lastTarget = Point(img.cols / 2, targetRow);
 
@@ -58,16 +58,12 @@ void Driver::findTarget()
     }
     else
     {
-        int adjust = img.cols / 3;
+        int adjust = img.cols / 3.5;
         target.x -= hug * adjust;
-        diff = target - lastTarget;
+        diff = target.x - lastTarget.x;
         lastTarget = target;
     }
     if (signOverride) signOverride -= 1;
-    if (signOverride > 0)
-        cout << signOverride << endl;
-    else
-        cout << endl;
 
     if (target == Point(0, 0))
     {
@@ -79,5 +75,5 @@ void Driver::findTarget()
 double Driver::getSteering()
 {
     Point carPosition(img.cols / 2, img.rows);
-    return (90 - computeAngle(target + diff / 1.5, carPosition, carPosition + Point(1, 0))) / 3;
+    return (90 - computeAngle(target, carPosition, carPosition + Point(1, 0))) * 0.2 + diff * 0.15;
 }

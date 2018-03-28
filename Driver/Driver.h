@@ -19,7 +19,7 @@ private:
     Mat img;
     Point lastTarget;
     int signOverride = 0;
-    Point diff;
+    int diff;
 };
 
 #endif
