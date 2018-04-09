@@ -2,7 +2,7 @@
 #define SIGN_DETECTOR_H
 
 #include <opencv2/opencv.hpp>
-#include "../LaneDetector/LaneDetector.h"
+#include "LaneDetector.h"
 
 namespace sd
 {

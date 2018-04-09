@@ -17,8 +17,8 @@
 #include <unistd.h>
 #include <opencv2/opencv.hpp>
 #include <cmath>
-#include "Driver/Driver.h"
-#include "Utilities/Utilities.h"
+#include "Driver.h"
+#include "Utilities.h"
 #include "OpenNI.h"
 
 using namespace std;

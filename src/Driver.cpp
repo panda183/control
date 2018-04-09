@@ -1,6 +1,6 @@
 #include "Driver.h"
-#include "../SignDetector/SignDetector.h"
-#include "../Utilities/Utilities.h"
+#include "SignDetector.h"
+#include "Utilities.h"
 #include <iostream>
 #define PI 3.14159
 
