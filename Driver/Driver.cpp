@@ -1,23 +1,16 @@
 #include "Driver.h"
 #include "../SignDetector/SignDetector.h"
+#include "../Utilities/Utilities.h"
 #include <iostream>
 #define PI 3.14159
 
-Driver::Driver() {}
+Driver::Driver()
+{
+    this->setHug(LEFT);
+    sd::init();
+}
 
 Driver::~Driver() {}
-
-double computeAngle(Point A, Point O, Point B)
-{
-    if ((A == O) || (B == O)) return 90;
-    Point vOA = A - O;
-    Point vOB = B - O;
-    double dOA = sqrt(vOA.x * vOA.x + vOA.y * vOA.y);
-    double dOB = sqrt(vOB.x * vOB.x + vOB.y * vOB.y);
-    double res = acos(vOA.dot(vOB) / (dOA * dOB));
-    res = res / PI * 180;
-    return res;
-}
 
 void Driver::setHug(int hug)
 {
@@ -75,5 +68,5 @@ void Driver::findTarget()
 double Driver::getSteering()
 {
     Point carPosition(img.cols / 2, img.rows);
-    return (90 - computeAngle(target, carPosition, carPosition + Point(1, 0))) * 0.2 + diff * 0.15;
+    return (90 - utl::computeAngle(target, carPosition, carPosition + Point(1, 0))) * 0.2 + diff * 0.15;
 }

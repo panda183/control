@@ -18,7 +18,8 @@
 #include <opencv2/opencv.hpp>
 #include <cmath>
 #include "Driver/Driver.h"
-#include "SignDetector/SignDetector.h"
+#include "Utilities/Utilities.h"
+#include "OpenNI.h"
 
 using namespace std;
 using namespace cv;
@@ -54,7 +55,6 @@ Mat GetImageFromServer()
     vector<char> arr(msg, msg + sizeof(msg) - 1);
     Mat decodedImage= imdecode(arr, CV_LOAD_IMAGE_COLOR);
     return decodedImage;
-    // return imread("1.jpg", CV_LOAD_IMAGE_COLOR);
 }
 
 void SendDataToServer(float torque,float angle)
@@ -68,36 +68,48 @@ int main(int argc, char *argv[])
 {
     if(argc != 3)
     {
-        cerr << "Usage: ip_address port" << endl; exit(0);
+        utl::openni2_init();
     }
-    char *serverIp = argv[1]; int port = atoi(argv[2]);
-    
-    if(!ConnectToServer(serverIp,port))
+    else
     {
-        return 0;
+        char *serverIp = argv[1]; int port = atoi(argv[2]);
+
+        if(!ConnectToServer(serverIp,port))
+        {
+            return 0;
+        }
     }
-    sd::init();
+
     Driver driver;
-    driver.setHug(LEFT);
-    do
+
+    while (true)
     {
-        Mat img = GetImageFromServer();
+        Mat color, depth;
+        if (argc == 3)
+            color = GetImageFromServer();
+        else
+            utl::openni2_getmat(color, depth);
         //xu ly anh img
-        if (img.empty())
+        if (color.empty() || depth.empty())
             continue;
 
-        Point carPosition(img.cols / 2, img.rows);
+        Point carPosition(color.cols / 2, color.rows);
 
-        driver.inputImg(img);
-        double angle = driver.getSteering();
-        
-        line(img, driver.target, carPosition, Scalar(255, 255, 255));
+        driver.inputImg(color);
 
-        if (!img.empty()) imshow("src",img);
-        waitKey(1);
-        SendDataToServer(18, angle);
-    } while (1);
+        line(color, driver.target, carPosition, Scalar(255, 255, 255));
 
-    close(clientSd);
+        imshow("color", color);
+        imshow("depth", depth);
+        if (waitKey(1) == 27)
+            break;
+        if (argc == 3) SendDataToServer(18, driver.getSteering());
+    }
+
+    if (argc == 3)
+        close(clientSd);
+    else
+        utl::openni2_destroy();
+
     return 0;
 }
