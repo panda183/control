@@ -27,7 +27,7 @@ using namespace cv;
 //create a message buffer
 char msg[100000];
 int clientSd;
-
+//tung
 bool ConnectToServer(char *serverIp,int port)
 {
     //setup a socket and connection tools
