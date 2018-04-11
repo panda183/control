@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
 
         Point carPosition(color.cols / 2, color.rows);
 
-        driver.inputImg(color);
+        driver.inputImg(color, depth);
 
         line(color, driver.target, carPosition, Scalar(255, 255, 255));
 

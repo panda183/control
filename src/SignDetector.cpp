@@ -10,15 +10,15 @@ void sd::init()
     rightSign = imread("right.jpg");
 }
 
-void sd::DetectSign(Mat &src)
+void sd::DetectSign(Mat &color, Mat &depth)
 {
     signDetected = false;
-    int cols = src.cols;
-    int rows = src.rows;
+    int cols = color.cols;
+    int rows = color.rows;
     Mat hsv, gray;
     Rect roiDetect = Rect(int(cols * 0.3), int(rows * 0.1), int(cols * 0.46), int(rows * 0.3));
-    rectangle(src, roiDetect, Scalar(0, 0, 255));
-    cvtColor(src(roiDetect), hsv, COLOR_BGR2HSV);
+    rectangle(color, roiDetect, Scalar(0, 0, 255));
+    cvtColor(color(roiDetect), hsv, COLOR_BGR2HSV);
     int minH = 80, minS = 130, minV = 60, maxH = 135, maxS = 255, maxV = 255;
     Scalar min = Scalar(minH, minS, minV);   //HSV VALUE
     Scalar max = Scalar(maxH, maxS, maxV); //HSV VALUE
@@ -38,8 +38,8 @@ void sd::DetectSign(Mat &src)
             rect.y += roiDetect.y + 6;
             rect.width -= 6 * 2;
             rect.height -= 6 * 2;
-            rectangle(src, rect, Scalar(0, 0, 255));
-            Mat matsign = src(rect);
+            rectangle(color, rect, Scalar(0, 0, 255));
+            Mat matsign = color(rect);
 
             signDetected = true;
             turn = recognizeSign(matsign);

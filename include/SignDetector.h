@@ -13,7 +13,7 @@ namespace sd
     double similar(Mat &img1, Mat &img2);
     void equalizeHistBGR(Mat &src, Mat &dst);
     double distance(Point p1, Point p2);
-    void DetectSign(Mat &src);
+    void DetectSign(Mat &color, Mat &depth);
     int recognizeSign(Mat &sign);
 }
 

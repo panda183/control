@@ -17,11 +17,12 @@ void Driver::setHug(int hug)
     this->hug = hug;
 }
 
-void Driver::inputImg(Mat img)
+void Driver::inputImg(Mat color, Mat depth)
 {
-    this->ld.inputImg(img);
-    this->img = img;
-    sd::DetectSign(img);
+    this->ld.inputImg(color);
+    this->color = color;
+    this->depth = depth;
+    sd::DetectSign(color, depth);
     if (sd::signDetected)
     {
         hug = sd::turn;
@@ -34,16 +35,16 @@ void Driver::inputImg(Mat img)
 void Driver::findTarget()
 {
     diff = 0;
-    int targetRow = img.rows * 0.5;
+    int targetRow = color.rows * 0.5;
     if (this->lastTarget == Point(0, 0))
-        lastTarget = Point(img.cols / 2, targetRow);
+        lastTarget = Point(color.cols / 2, targetRow);
 
     target = ld.findLanePoint(hug, this->lastTarget);
     if (target == Point(0, 0))
     {
         if (signOverride)
         {
-            target = Point(img.cols / 2 + hug * 10, targetRow);
+            target = Point(color.cols / 2 + hug * 10, targetRow);
             return;
         }
         hug = -hug;
@@ -51,7 +52,7 @@ void Driver::findTarget()
     }
     else
     {
-        int adjust = img.cols / 3.5;
+        int adjust = color.cols / 3.5;
         target.x -= hug * adjust;
         diff = target.x - lastTarget.x;
         lastTarget = target;
@@ -67,6 +68,6 @@ void Driver::findTarget()
 
 double Driver::getSteering()
 {
-    Point carPosition(img.cols / 2, img.rows);
+    Point carPosition(color.cols / 2, color.rows);
     return (90 - utl::computeAngle(target, carPosition, carPosition + Point(1, 0))) * 0.2 + diff * 0.15;
 }

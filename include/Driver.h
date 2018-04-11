@@ -11,12 +11,12 @@ public:
     int hug;
     void findTarget();
     void setHug(int hug);
-    void inputImg(Mat img);
+    void inputImg(Mat color, Mat depth);
     double getSteering();
     Point target;
 private:
     LaneDetector ld;
-    Mat img;
+    Mat color, depth;
     Point lastTarget;
     int signOverride = 0;
     int diff;
