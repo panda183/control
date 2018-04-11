@@ -1,9 +1,12 @@
 #include "Utilities.h"
-#define PI 3.14159
+#include <fstream>
+#include <map>
+using namespace std;
 
 openni::Device utl::device;
 openni::VideoStream  utl::color, utl::depth;
 openni::VideoFrameRef utl::colorFrame, utl::depthFrame;
+map<int, int> utl::depth_map;
 
 void utl::openni2_init()
 {
@@ -55,4 +58,22 @@ double utl::computeAngle(cv::Point A, cv::Point O, cv::Point B)
     double res = acos(vOA.dot(vOB) / (dOA * dOB));
     res = res / PI * 180;
     return res;
+}
+
+double utl::distance(cv::Point A, cv::Point B)
+{
+    cv::Point d = A - B;
+    return sqrt(d.x * d.x + d.y * d.y);
+}
+
+void utl::read_config()
+{
+    ifstream input("depth_size_map.txt");
+    while (!input.eof())
+    {
+        int depth, diameter;
+        input >> depth >> diameter;
+        depth_map.insert(pair<int, int>(depth, diameter));
+    }
+    input.close();
 }

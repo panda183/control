@@ -10,7 +10,7 @@ link_directories ( ${OPENNI2_REDIST} )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/include )
+include_directories( ${CMAKE_SOURCE_DIR}/include )
 
 add_executable( Client
     src/client.cpp
@@ -21,3 +21,5 @@ add_executable( Client
 )
 
 target_link_libraries( Client ${OpenCV_LIBS} OpenNI2 )
+
+configure_file( ${CMAKE_SOURCE_DIR}/config/depth_size_map.txt depth_size_map.txt COPYONLY)

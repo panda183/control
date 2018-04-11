@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
             return 0;
         }
     }
-
+    utl::read_config();
     Driver driver;
 
     while (true)
@@ -98,9 +98,8 @@ int main(int argc, char *argv[])
         driver.inputImg(color, depth);
 
         line(color, driver.target, carPosition, Scalar(255, 255, 255));
-
-        imshow("color", color);
         imshow("depth", depth);
+        imshow("color", color);
         if (waitKey(1) == 27)
             break;
         if (argc == 3) SendDataToServer(18, driver.getSteering());
