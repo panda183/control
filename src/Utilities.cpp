@@ -18,6 +18,8 @@ void utl::openni2_init()
 
     depth.create(device, openni::SENSOR_DEPTH);
     depth.start();
+    device.setImageRegistrationMode(openni::IMAGE_REGISTRATION_DEPTH_TO_COLOR);
+	device.setDepthColorSyncEnabled(true);
 }
 
 void utl::openni2_getmat(cv::Mat& mat_color, cv::Mat& mat_depth)

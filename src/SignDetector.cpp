@@ -136,11 +136,11 @@ void sd::DetectSign(Mat &color, Mat &depth)
             {
                 if (currentGroup[i] == Point(-1, -1)) continue;
                 if (start.y == 0) s = 0;
-                if (utl::distance(center, currentGroup[i]) > (DIAMETER * 0.55))
+                if (utl::distance(center, currentGroup[i]) > (DIAMETER * 0.52))
                     s = 0;
             }
             ind += 1;
-            if (abs(s - (DIAMETER * DIAMETER / 4 * PI)) > DIAMETER * DIAMETER / 4 * PI * 0.2) continue;
+            if (abs(s - (DIAMETER * DIAMETER / 4 * PI)) > DIAMETER * DIAMETER / 4 * PI * 0.3) continue;
             cout << avg_depth << endl;
             for (int i = 0; i < currentGroup.size(); i++)
             {
