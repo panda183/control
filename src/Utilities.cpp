@@ -70,12 +70,5 @@ double utl::distance(cv::Point A, cv::Point B)
 
 void utl::read_config()
 {
-    ifstream input("depth_size_map.txt");
-    while (!input.eof())
-    {
-        int depth, diameter;
-        input >> depth >> diameter;
-        depth_map.insert(pair<int, int>(depth, diameter));
-    }
-    input.close();
+    
 }

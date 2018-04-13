@@ -22,4 +22,4 @@ add_executable( Client
 
 target_link_libraries( Client ${OpenCV_LIBS} OpenNI2 )
 
-configure_file( ${CMAKE_SOURCE_DIR}/config/depth_size_map.txt depth_size_map.txt COPYONLY)
+configure_file( ${CMAKE_SOURCE_DIR}/config/tuning.txt tuning.txt COPYONLY)

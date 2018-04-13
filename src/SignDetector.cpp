@@ -39,7 +39,7 @@ void smoothen(vector<Point> &shape, Point center, int diameter)
             remove_count++;
             shape[i] = Point(-1, -1);
         }
-    if (remove_count > shape.size() / 10)
+    if (remove_count > shape.size() / 8)
         shape.clear();
 }
 
@@ -55,15 +55,12 @@ void sd::DetectSign(Mat &color, Mat &depth)
     int dy[8] = {-1,  0,  1, -1, 1, -1, 0, 1};
 
     int d[depth.rows][depth.cols];
-    vector<int> fullLength;
-    int index[depth.rows][depth.cols];
-    int ind = 0;
     queue<Point> q;
 
     for (int i = 0; i < depth.rows; i++)
         for (int j = 0; j < depth.cols; j++)
         {
-            d[i][j] = index[i][j] = oo;
+            d[i][j] = oo;
         }
 
     for (int i = 0; i < depth.rows; i++)
@@ -72,9 +69,7 @@ void sd::DetectSign(Mat &color, Mat &depth)
             if (d[i][j] != oo) continue;
 
             d[i][j] = 0;
-            index[i][j] = ind;
             int s = 1;
-            fullLength.push_back(1);
             Point start(i, j), finish(i, j);
             q.push(start);
             vector<Point> currentGroup;
@@ -106,8 +101,6 @@ void sd::DetectSign(Mat &color, Mat &depth)
                         continue;
                     }
                     d[v.x][v.y] = d[u.x][u.y] + 1;
-                    index[v.x][v.y] = ind;
-                    fullLength[ind] = max(fullLength[ind], d[v.x][v.y]);
                     q.push(v);
                     currentGroup.push_back(v);
                     s += 1;
@@ -123,23 +116,21 @@ void sd::DetectSign(Mat &color, Mat &depth)
             center = center / (int)currentGroup.size();
             avg_depth = avg_depth / (int)currentGroup.size();
 
-            if ((avg_depth < 42) || (avg_depth > 165)) continue;
+            if ((avg_depth < 20) || (avg_depth > 165)) continue;
 
-            DIAMETER = utl::depth_map.at(avg_depth);
+            DIAMETER = 5000 / avg_depth;
 
             if (perimeter > DIAMETER * PI * 5) continue;
-            if (bottom_border > DIAMETER * 1.2) continue;
+            if (bottom_border > DIAMETER * 1.5) continue;
 
             smoothen(currentGroup, center, DIAMETER);
 
             for (int i = 0; i < currentGroup.size(); i++)
             {
                 if (currentGroup[i] == Point(-1, -1)) continue;
-                if (start.y == 0) s = 0;
-                if (utl::distance(center, currentGroup[i]) > (DIAMETER * 0.52))
+                if (utl::distance(center, currentGroup[i]) > (DIAMETER * 0.55))
                     s = 0;
             }
-            ind += 1;
             if (abs(s - (DIAMETER * DIAMETER / 4 * PI)) > DIAMETER * DIAMETER / 4 * PI * 0.3) continue;
             cout << avg_depth << endl;
             for (int i = 0; i < currentGroup.size(); i++)
