@@ -2,7 +2,7 @@
 #include "Utilities.h"
 #include <queue>
 
-Mat sd::leftSign, sd::rightSign;
+Mat sd::leftSign, sd::rightSign, sd::stopSign;
 bool sd::signDetected;
 int sd::turn;
 
@@ -10,6 +10,7 @@ void sd::init()
 {
     leftSign = imread("left.jpg");
     rightSign = imread("right.jpg");
+    stopSign = imread("stop.png");
 }
 
 void smoothen(vector<Point> &shape, Point center, int diameter)
@@ -27,7 +28,7 @@ void smoothen(vector<Point> &shape, Point center, int diameter)
         max_density = max(max_density, histogram[i]);
 
     for (int i = histogram.size() - 1; i >= 0; i--)
-        if (histogram[i] < max_density / 3)
+        if (histogram[i] < max_density / 2)
             histogram[i] = 0;
         else
             break;
@@ -41,6 +42,12 @@ void smoothen(vector<Point> &shape, Point center, int diameter)
         }
     if (remove_count > shape.size() / 8)
         shape.clear();
+
+    vector<Point> tmp(shape);
+    shape.clear();
+    for (int i = 0; i < tmp.size(); i++)
+        if (tmp[i] != Point(-1, -1))
+            shape.push_back(tmp[i]);
 }
 
 void sd::DetectSign(Mat &color, Mat &depth)
@@ -126,28 +133,42 @@ void sd::DetectSign(Mat &color, Mat &depth)
             smoothen(currentGroup, center, DIAMETER);
 
             for (int i = 0; i < currentGroup.size(); i++)
-            {
-                if (currentGroup[i] == Point(-1, -1)) continue;
                 if (utl::distance(center, currentGroup[i]) > (DIAMETER * 0.55))
                     s = 0;
-            }
             if (abs(s - (DIAMETER * DIAMETER / 4 * PI)) > DIAMETER * DIAMETER / 4 * PI * 0.3) continue;
-            cout << avg_depth << endl;
+            // cout << avg_depth << endl;
             for (int i = 0; i < currentGroup.size(); i++)
-            {
-                if (currentGroup[i] == Point(-1, -1)) continue;
-                color.at<Vec3b>(currentGroup[i].x, currentGroup[i].y) = Vec3b(100, 0, 0);
-            }
+                currentGroup[i] = Point(currentGroup[i].y, currentGroup[i].x);
+            Rect r = boundingRect(currentGroup);
+            Mat sign = color(r);
+            recognizeSign(sign);
+            rectangle(color, r, Scalar(0, 0, 255));
         }
 }
 
 int sd::recognizeSign(Mat &sign)
 {
-    double p1 = similar(sign, leftSign);
-    double p2 = similar(sign, rightSign);
-    if (p1 > p2)
+    double p_left = similar(sign, leftSign);
+    double p_right = similar(sign, rightSign);
+    double p_stop = similar(sign, stopSign);
+    double Max = max(max(p_left, p_right), p_stop);
+    if (Max < 0.5) return 0;
+    if (abs(Max - p_left) < 1e-4)
+    {
+        cout << "left " << p_left << endl;
         return LEFT;
-    return RIGHT;
+    }
+    else
+    if (abs(Max - p_right) < 1e-4)
+    {
+        cout << "right " << p_right << endl;
+        return LEFT;
+    }
+    if (abs(Max - p_stop) < 1e-4)
+    {
+        cout << "stop " << p_stop << endl;
+        return LEFT;
+    }
 }
 
 double sd::distance(Point p1, Point p2)
@@ -178,6 +199,11 @@ void sd::equalizeHistBGR(Mat &src, Mat &dst)
 double sd::similar(Mat &img1, Mat &img2)
 {
     Mat hsv1, hsv2;
+    if (img1.empty())
+    {
+        // cout << "empty" << endl;
+        return 0;
+    }
     resize(img1, hsv1, img1.size());
     equalizeHistBGR(hsv1, hsv1);
     cvtColor(hsv1, hsv1, COLOR_BGR2HSV);

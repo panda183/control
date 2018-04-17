@@ -14,10 +14,13 @@ void utl::openni2_init()
     device.open(openni::ANY_DEVICE);
 
     color.create(device, openni::SENSOR_COLOR);
+    color.setMirroringEnabled(false);
     color.start();
 
     depth.create(device, openni::SENSOR_DEPTH);
+    depth.setMirroringEnabled(false);
     depth.start();
+
     device.setImageRegistrationMode(openni::IMAGE_REGISTRATION_DEPTH_TO_COLOR);
 	device.setDepthColorSyncEnabled(true);
 }
