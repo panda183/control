@@ -3,8 +3,8 @@ project( Client )
 find_package( OpenCV REQUIRED )
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 
-set( OPENNI2_INCLUDE /home/dung/Downloads/OpenNI_2.3.0.43/Linux/OpenNI-Linux-x64-2.3/Include)
-set( OPENNI2_REDIST  /home/dung/Downloads/OpenNI_2.3.0.43/Linux/OpenNI-Linux-x64-2.3/Redist)
+set( OPENNI2_INCLUDE /home/tung/Downloads/OpenNI_2.3.0.43/Linux/OpenNI-Linux-x64-2.3/Include)
+set( OPENNI2_REDIST  /home/tung/Downloads/OpenNI_2.3.0.43/Linux/OpenNI-Linux-x64-2.3/Redist)
 include_directories( ${OPENNI2_INCLUDE} )
 link_directories ( ${OPENNI2_REDIST} )
 
@@ -19,5 +19,11 @@ add_executable( Client
     src/SignDetector.cpp
     src/Utilities.cpp
 )
+add_executable( Setup
+    src/setup.cpp
+    src/Utilities.cpp
+)
 
 target_link_libraries( Client ${OpenCV_LIBS} OpenNI2 )
+target_link_libraries( Setup ${OpenCV_LIBS} OpenNI2 )
+

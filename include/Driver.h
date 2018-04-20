@@ -5,7 +5,7 @@
 
 class Driver
 {
-public:
+  public:
     Driver();
     ~Driver();
     int hug;
@@ -14,7 +14,8 @@ public:
     void inputImg(Mat img);
     double getSteering();
     Point target;
-private:
+
+  private:
     LaneDetector ld;
     Mat img;
     Point lastTarget;

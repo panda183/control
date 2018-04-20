@@ -21,7 +21,7 @@ void Driver::inputImg(Mat img)
 {
     this->ld.inputImg(img);
     this->img = img;
-    sd::DetectSign(img);
+    //sd::DetectSign(img);
     if (sd::signDetected)
     {
         hug = sd::turn;
