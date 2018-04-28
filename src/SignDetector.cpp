@@ -26,24 +26,24 @@ void sd::DetectSign(Mat &color, Mat &depth)
     // imshow("HSV",gray);
     erode(gray, gray, Mat(), Point(-1, -1), 2, 1, 1);
     dilate(gray, gray, Mat(), Point(-1, -1), 8, 1, 1);
-     // imshow("dilate",gray);
+    // imshow("dilate",gray);
     vector<vector<Point>> contours;
     findContours(gray, contours, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
     for (int i = 0; i < contours.size(); i++)
     {
         Rect rect = boundingRect(contours[i]);
-        if (abs((rect.width * 1.0 / rect.height) - 1) < 0.1 && rect.width - 6 > int(cols * 0.03) && rect.width - 6 < int(cols * 0.110))
-        {
-            rect.x += roiDetect.x + 6;
-            rect.y += roiDetect.y + 6;
-            rect.width -= 6 * 2;
-            rect.height -= 6 * 2;
-            rectangle(color, rect, Scalar(0, 0, 255));
-            Mat matsign = color(rect);
+        if (abs((rect.width * 1.0 / rect.height) - 1) > 0.1) continue;
+        if (rect.width - 6 < int(cols * 0.03)) continue;
+        if (rect.width - 6 > int(cols * 0.2)) continue;
+        rect.x += roiDetect.x + 6;
+        rect.y += roiDetect.y + 6;
+        rect.width -= 6 * 2;
+        rect.height -= 6 * 2;
+        rectangle(color, rect, Scalar(0, 0, 255));
+        Mat matsign = color(rect);
 
-            signDetected = true;
-            turn = recognizeSign(matsign);
-        }
+        signDetected = true;
+        turn = recognizeSign(matsign);
     }
 }
 
