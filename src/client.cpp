@@ -99,8 +99,11 @@ int main(int argc, char *argv[])
 
         line(color, driver.target, carPosition, Scalar(255, 255, 255));
 
+        Mat adjMap;
+        convertScaleAbs(depth, adjMap, 255.0 / 6000);
+
         imshow("color", color);
-        imshow("depth", depth);
+        imshow("depth", adjMap);
         if (waitKey(1) == 27)
             break;
         if (argc == 3) SendDataToServer(18, driver.getSteering());

@@ -19,5 +19,10 @@ add_executable( Client
     src/SignDetector.cpp
     src/Utilities.cpp
 )
+add_executable( Setup
+    src/setup.cpp
+    src/Utilities.cpp
+)
 
 target_link_libraries( Client ${OpenCV_LIBS} OpenNI2 )
+target_link_libraries( Setup ${OpenCV_LIBS} OpenNI2 )

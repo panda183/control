@@ -6,8 +6,8 @@ int sd::turn;
 
 void sd::init()
 {
-    leftSign = imread("left.jpg");
-    rightSign = imread("right.jpg");
+    leftSign = imread("img/left.jpg");
+    rightSign = imread("img/right.jpg");
 }
 
 void sd::DetectSign(Mat &color, Mat &depth)
