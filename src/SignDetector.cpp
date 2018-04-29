@@ -1,8 +1,7 @@
 #include "SignDetector.h"
 
 Mat sd::leftSign, sd::rightSign, sd::stopSign;
-bool sd::signDetected;
-int sd::turn;
+int sd::sign;
 
 void sd::init()
 {
@@ -13,14 +12,14 @@ void sd::init()
 
 void sd::DetectSign(Mat &color, Mat &depth)
 {
-    signDetected = false;
     int cols = color.cols;
     int rows = color.rows;
     Mat hsv, gray;
     Rect roiDetect = Rect(int(cols * 0.3), int(rows * 0.1), int(cols * 0.46), int(rows * 0.3));
     rectangle(color, roiDetect, Scalar(0, 0, 255));
     cvtColor(color(roiDetect), hsv, COLOR_BGR2HSV);
-    int minH = 80, minS = 130, minV = 60, maxH = 135, maxS = 255, maxV = 255;
+    int minH = 80, minS = 130, minV = 60,
+        maxH = 135, maxS = 255, maxV = 255;
     Scalar min = Scalar(minH, minS, minV);   //HSV VALUE
     Scalar max = Scalar(maxH, maxS, maxV); //HSV VALUE
     inRange(hsv, min, max, gray);
@@ -30,6 +29,8 @@ void sd::DetectSign(Mat &color, Mat &depth)
     // imshow("dilate",gray);
     vector<vector<Point>> contours;
     findContours(gray, contours, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
+    ushort minDistance = 30000;
+    sign = NO_SIGN;
     for (int i = 0; i < contours.size(); i++)
     {
         Rect rect = boundingRect(contours[i]);
@@ -38,23 +39,27 @@ void sd::DetectSign(Mat &color, Mat &depth)
         rect.y += roiDetect.y + 6;
         rect.width -= 6 * 2;
         rect.height -= 6 * 2;
+        Point center(rect.x + rect.height / 2, rect.y + rect.width / 2);
         int radius = rect.height / 2;
         int RADIUS = 43000;
-        Point center(rect.x + rect.height / 2, rect.y + rect.width / 2);
-        if (abs(RADIUS - radius * depth.at<ushort>(center)) > RADIUS / 15) continue;
-        // cout << radius << " : " << depth.at<ushort>(center) << endl;
+        ushort distance = depth.at<ushort>(center);
+        if (abs(RADIUS - radius * distance) > RADIUS / 15) continue;
+        // cout << radius << " : " << distance << endl;
 
         rectangle(color, rect, Scalar(0, 0, 255));
         Mat matsign = color(rect);
         resize(matsign, matsign, Size(rect.height, rect.height));
         imshow("matsign", matsign);
 
-        signDetected = true;
-        turn = recognizeSign(matsign);
-        if (turn == LEFT) cout << "left" << endl;
-        else if (turn == RIGHT) cout << "right" << endl;
-        else if (turn == STOP) cout << "stop" << endl;
+        int tmp = recognizeSign(matsign);
+        if (tmp == NO_SIGN) continue;
+        if (distance > minDistance) continue;
+        sign = tmp;
+        minDistance = distance;
     }
+    if (sign == LEFT) cout << "left" << endl;
+    else if (sign == RIGHT) cout << "right" << endl;
+    else if (sign == STOP) cout << "stop" << endl;
 }
 
 int sd::recognizeSign(Mat &sign)

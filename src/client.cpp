@@ -102,8 +102,8 @@ int main(int argc, char *argv[])
         Mat adjMap;
         convertScaleAbs(depth, adjMap, 255.0 / 6000);
 
-        imshow("color", color);
         imshow("depth", adjMap);
+        imshow("color", color);
         if (waitKey(1) == 27)
             break;
         if (argc == 3) SendDataToServer(18, driver.getSteering());
