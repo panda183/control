@@ -32,7 +32,7 @@ void sd::DetectSign(Mat &color, Mat &depth)
     for (int i = 0; i < contours.size(); i++)
     {
         Rect rect = boundingRect(contours[i]);
-        if (abs((rect.width * 1.0 / rect.height) - 1) > 0.1) continue;
+        if (abs((rect.width * 1.0 / rect.height) - 1) > 0.2) continue;
         rect.x += roiDetect.x + 6;
         rect.y += roiDetect.y + 6;
         rect.width -= 6 * 2;
@@ -40,12 +40,12 @@ void sd::DetectSign(Mat &color, Mat &depth)
         int radius = rect.height / 2;
         int RADIUS = 43000;
         Point center(rect.x + rect.height / 2, rect.y + rect.width / 2);
-        if (abs(RADIUS - radius * depth.at<ushort>(center)) > 3000) continue;
+        if (abs(RADIUS - radius * depth.at<ushort>(center)) > RADIUS / 15) continue;
         // cout << radius << " : " << depth.at<ushort>(center) << endl;
 
         rectangle(color, rect, Scalar(0, 0, 255));
         Mat matsign = color(rect);
-
+        resize(matsign, matsign, Size(rect.height, rect.height));
         imshow("matsign", matsign);
 
         signDetected = true;
