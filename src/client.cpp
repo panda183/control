@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
             return 0;
         }
     }
-
+    utl::readGroundPlane();
     Driver driver;
 
     while (true)

@@ -4,11 +4,10 @@
 #include "Driver.h"
 #include "Utilities.h"
 #include "OpenNI.h"
+#include <fstream>
 
 using namespace std;
 using namespace cv;
-
-#define PI 3.14159265
 
 Mat color, depth;
 Vec4f groundPlane;       //phuong trinh mat phang
@@ -27,7 +26,7 @@ void CallBackFunc(int event, int x, int y, int flags, void *userdata)
         if (_3Point.size() == 3)
         {
             groundPlane = utl::findPlaneEquation(_3Point);
-            cout << "PLane:" << groundPlane << endl;
+            cout << "Plane:" << groundPlane << endl;
             _3Point.clear();
         }
     }
@@ -42,7 +41,8 @@ int main(int argc, char *argv[])
     utl::openni2_init();
     namedWindow("depth");
     setMouseCallback("depth", CallBackFunc, NULL);
-    do
+    int k;
+    while (1)
     {
         utl::openni2_getmat(color, depth);
 
@@ -51,7 +51,20 @@ int main(int argc, char *argv[])
 
         imshow("color", color);
         imshow("depth", adjMap);
-    } while (waitKey(20) != 27);
+        k = waitKey(1);
+        if (k != -1) break;
+    }
+    if (k != 13)
+        cout << "exiting" << endl;
+    else
+    {
+        ofstream output(GROUND_PLANE_INPUT);
+        for (int i = 0; i < 4; i++)
+            output << groundPlane[i] << " ";
+        output.close();
+        cout << "ground plane writen to " << GROUND_PLANE_INPUT << endl;
+        cout << "exiting" << endl;
+    }
     utl::openni2_destroy();
     return 0;
 }

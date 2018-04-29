@@ -3,6 +3,7 @@
 
 #include <opencv2/opencv.hpp>
 #include "LaneDetector.h"
+#include "Utilities.h"
 
 namespace sd
 {

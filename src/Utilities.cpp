@@ -1,9 +1,10 @@
 #include "Utilities.h"
-#define PI 3.14159
+#include <fstream>
 
 openni::Device utl::device;
 openni::VideoStream utl::color, utl::depth;
 openni::VideoFrameRef utl::colorFrame, utl::depthFrame;
+cv::Vec4f utl::groundPlane;
 
 void utl::openni2_init()
 {
@@ -89,4 +90,12 @@ cv::Point3f utl::getRealPointInWorld(cv::Point screenPoint, int depth)
     res.y = ((240.0 - screenPoint.y) / 480.0) * py;
     res.z = depth;
     return res;
+}
+
+void utl::readGroundPlane()
+{
+    std::ifstream input(GROUND_PLANE_INPUT);
+    for (int i = 0; i < 4; i++)
+        input >> groundPlane[i];
+    std::cout << "ground plane: " << groundPlane << std::endl;
 }

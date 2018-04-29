@@ -46,6 +46,9 @@ void sd::DetectSign(Mat &color, Mat &depth)
         if (abs(RADIUS - radius * distance) > RADIUS / 15) continue;
         // cout << radius << " : " << distance << endl;
 
+        Point3f p = utl::getRealPointInWorld(Point(center.y, center.x), distance);
+        cout << "height:" << utl::dToPlane(p, utl::groundPlane) << endl;
+
         rectangle(color, rect, Scalar(0, 0, 255));
         Mat matsign = color(rect);
         resize(matsign, matsign, Size(rect.height, rect.height));
