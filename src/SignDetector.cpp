@@ -1,6 +1,6 @@
 #include "SignDetector.h"
 
-Mat sd::leftSign, sd::rightSign;
+Mat sd::leftSign, sd::rightSign, sd::stopSign;
 bool sd::signDetected;
 int sd::turn;
 
@@ -8,6 +8,7 @@ void sd::init()
 {
     leftSign = imread("img/left.jpg");
     rightSign = imread("img/right.jpg");
+    stopSign = imread("img/stop.png");
 }
 
 void sd::DetectSign(Mat &color, Mat &depth)
@@ -50,16 +51,24 @@ void sd::DetectSign(Mat &color, Mat &depth)
 
         signDetected = true;
         turn = recognizeSign(matsign);
+        if (turn == LEFT) cout << "left" << endl;
+        else if (turn == RIGHT) cout << "right" << endl;
+        else if (turn == STOP) cout << "stop" << endl;
     }
 }
 
 int sd::recognizeSign(Mat &sign)
 {
-    double p1 = similar(sign, leftSign);
-    double p2 = similar(sign, rightSign);
-    if (p1 > p2)
-        return LEFT;
-    return RIGHT;
+    double p_left = similar(sign, leftSign);
+    double p_right = similar(sign, rightSign);
+    double p_stop = similar(sign, stopSign);
+    double p_max = max(p_left, max(p_right, p_stop));
+
+    if (p_max < 0.5) return NO_SIGN;
+    cout << p_max << " ";
+    if (p_max == p_left) return LEFT;
+    if (p_max == p_right) return RIGHT;
+    if (p_max == p_stop) return STOP;
 }
 
 double sd::distance(Point p1, Point p2)

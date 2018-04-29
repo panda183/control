@@ -6,7 +6,7 @@
 
 namespace sd
 {
-    extern Mat leftSign, rightSign;
+    extern Mat leftSign, rightSign, stopSign;
     extern bool signDetected;
     extern int turn;
     void init();
