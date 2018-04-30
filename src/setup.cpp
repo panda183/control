@@ -3,7 +3,7 @@
 #include <opencv2/opencv.hpp>
 #include "Driver.h"
 #include "Utilities.h"
-#include "OpenNI.h"
+#include "OpenNIHelper.h"
 #include <fstream>
 
 using namespace std;
@@ -38,7 +38,7 @@ void CallBackFunc(int event, int x, int y, int flags, void *userdata)
 }
 int main(int argc, char *argv[])
 {
-    utl::openni2_init();
+    ni::openni2_init();
     namedWindow("depth");
     setMouseCallback("depth", CallBackFunc, NULL);
     cout << "three left-click to choose ground plane" << endl;
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     int k;
     while (1)
     {
-        utl::openni2_getmat(color, depth);
+        ni::openni2_getmat(color, depth);
 
         Mat adjMap;
         convertScaleAbs(depth, adjMap, 255.0 / 6000);
@@ -67,6 +67,6 @@ int main(int argc, char *argv[])
         cout << "ground plane writen to " << GROUND_PLANE_INPUT << endl;
         cout << "exiting" << endl;
     }
-    utl::openni2_destroy();
+    ni::openni2_destroy();
     return 0;
 }

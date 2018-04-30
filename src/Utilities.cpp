@@ -1,54 +1,7 @@
 #include "Utilities.h"
 #include <fstream>
 
-openni::Device utl::device;
-openni::VideoStream utl::color, utl::depth;
-openni::VideoFrameRef utl::colorFrame, utl::depthFrame;
 cv::Vec4f utl::groundPlane;
-
-void utl::openni2_init()
-{
-    openni::OpenNI::initialize();
-    device.open(openni::ANY_DEVICE);
-
-    color.create(device, openni::SENSOR_COLOR);
-    color.start();
-
-    depth.create(device, openni::SENSOR_DEPTH);
-    depth.start();
-
-    color.setMirroringEnabled(false);
-    depth.setMirroringEnabled(false);
-
-    device.setImageRegistrationMode(openni::IMAGE_REGISTRATION_DEPTH_TO_COLOR);
-    device.setDepthColorSyncEnabled(true);
-}
-
-void utl::openni2_getmat(cv::Mat &mat_color, cv::Mat &mat_depth)
-{
-    color.readFrame(&colorFrame);
-    const openni::RGB888Pixel *colorImageBuffer = (const openni::RGB888Pixel *)colorFrame.getData();
-
-    mat_color.create(colorFrame.getHeight(), colorFrame.getWidth(), CV_8UC3);
-    memcpy(mat_color.data, colorImageBuffer, 3 * colorFrame.getHeight() * colorFrame.getWidth() * sizeof(uint8_t));
-
-    cv::cvtColor(mat_color, mat_color, CV_BGR2RGB);
-
-    depth.readFrame(&depthFrame);
-    const openni::DepthPixel *depthImageBuffer = (const openni::DepthPixel *)depthFrame.getData();
-
-    mat_depth.create(depthFrame.getHeight(), depthFrame.getWidth(), CV_16UC1);
-    memcpy(mat_depth.data, depthImageBuffer, depthFrame.getHeight() * depthFrame.getWidth() * sizeof(uint16_t));
-}
-
-void utl::openni2_destroy()
-{
-    color.stop();
-    color.destroy();
-    depth.stop();
-    depth.destroy();
-    device.close();
-}
 
 double utl::computeAngle(cv::Point A, cv::Point O, cv::Point B)
 {

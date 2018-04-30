@@ -19,7 +19,7 @@
 #include <cmath>
 #include "Driver.h"
 #include "Utilities.h"
-#include "OpenNI.h"
+#include "OpenNIHelper.h"
 // test push
 using namespace std;
 using namespace cv;
@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 {
     if(argc != 3)
     {
-        utl::openni2_init();
+        ni::openni2_init();
     }
     else
     {
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
     catch (const char* msg)
     {
         cerr << msg << endl;
-        utl::openni2_destroy();
+        ni::openni2_destroy();
         return 1;
     }
     Driver driver;
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
         if (argc == 3)
             color = GetImageFromServer();
         else
-            utl::openni2_getmat(color, depth);
+            ni::openni2_getmat(color, depth);
         //xu ly anh img
         if (color.empty() || depth.empty())
             continue;
@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
     if (argc == 3)
         close(clientSd);
     else
-        utl::openni2_destroy();
+        ni::openni2_destroy();
 
     return 0;
 }
