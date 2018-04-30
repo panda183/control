@@ -41,6 +41,8 @@ int main(int argc, char *argv[])
     utl::openni2_init();
     namedWindow("depth");
     setMouseCallback("depth", CallBackFunc, NULL);
+    cout << "three left-click to choose ground plane" << endl;
+    cout << "ENTER to confirm, ESC to cancel" << endl;
     int k;
     while (1)
     {
