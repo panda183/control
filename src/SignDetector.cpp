@@ -18,7 +18,7 @@ void sd::DetectSign(Mat &color, Mat &depth)
     Rect roiDetect = Rect(int(cols * 0.3), int(rows * 0.1), int(cols * 0.46), int(rows * 0.3));
     rectangle(color, roiDetect, Scalar(0, 0, 255));
     cvtColor(color(roiDetect), hsv, COLOR_BGR2HSV);
-    int minH = 80, minS = 130, minV = 60,
+    int minH = 50, minS = 100, minV = 40,
         maxH = 135, maxS = 255, maxV = 255;
     Scalar min = Scalar(minH, minS, minV);   //HSV VALUE
     Scalar max = Scalar(maxH, maxS, maxV); //HSV VALUE
@@ -41,13 +41,16 @@ void sd::DetectSign(Mat &color, Mat &depth)
         rect.height -= 6 * 2;
         Point center(rect.x + rect.height / 2, rect.y + rect.width / 2);
         int radius = rect.height / 2;
-        int RADIUS = 43000;
+        int RADIUS = 48000;
+        float HEIGHT = 265;
         ushort distance = depth.at<ushort>(center);
-        if (abs(RADIUS - radius * distance) > RADIUS / 15) continue;
+        if (abs(RADIUS - radius * distance) > RADIUS / 10) continue;
         // cout << radius << " : " << distance << endl;
 
-        Point3f p = utl::getRealPointInWorld(Point(center.y, center.x), distance);
-        cout << "height:" << utl::dToPlane(p, utl::groundPlane) << endl;
+        Point3f p = utl::getRealPointInWorld(center, distance);
+        float signHeight = utl::dToPlane(p, utl::groundPlane);
+        if (abs(signHeight - HEIGHT) > 30) continue;
+        cout << "height:" << signHeight << " ";
 
         rectangle(color, rect, Scalar(0, 0, 255));
         Mat matsign = color(rect);
