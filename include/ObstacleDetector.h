@@ -1,3 +1,6 @@
+#ifndef OBSTACLE_DETECTOR_H
+#define OBSTACLE_DETECTOR_H
+
 #include <opencv2/opencv.hpp>
 
 class ObstacleDetector
@@ -7,3 +10,5 @@ class ObstacleDetector
     bool obstacle;
     cv::Point center;
 };
+
+#endif
