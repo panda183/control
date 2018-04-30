@@ -39,7 +39,7 @@ void sd::DetectSign(Mat &color, Mat &depth)
         rect.y += roiDetect.y + 6;
         rect.width -= 6 * 2;
         rect.height -= 6 * 2;
-        Point center(rect.x + rect.height / 2, rect.y + rect.width / 2);
+        Point center(rect.x + rect.width / 2, rect.y + rect.height / 2);
         int radius = rect.height / 2;
         int RADIUS = 48000;
         float HEIGHT = 265;

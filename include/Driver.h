@@ -2,6 +2,7 @@
 #define DRIVER_H
 
 #include "LaneDetector.h"
+#include "ObstacleDetector.h"
 
 class Driver
 {
@@ -17,6 +18,7 @@ class Driver
 
   private:
     LaneDetector ld;
+    ObstacleDetector od;
     Mat color, depth;
     Point lastTarget;
     int signOverride = 0;

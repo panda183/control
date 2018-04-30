@@ -18,6 +18,7 @@ add_executable( Client
     src/Driver.cpp
     src/SignDetector.cpp
     src/Utilities.cpp
+    src/ObstacleDetector.cpp
 )
 add_executable( Setup
     src/setup.cpp

@@ -23,6 +23,7 @@ void Driver::inputImg(Mat color, Mat depth)
     this->color = color;
     this->depth = depth;
     sd::DetectSign(color, depth);
+    this->od.detectObstacle(color, depth);
     if (sd::sign)
     {
         hug = sd::sign;
