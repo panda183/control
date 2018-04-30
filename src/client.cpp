@@ -79,7 +79,16 @@ int main(int argc, char *argv[])
             return 0;
         }
     }
-    utl::readGroundPlane();
+    try
+    {
+        utl::readGroundPlane();
+    }
+    catch (const char* msg)
+    {
+        cerr << msg << endl;
+        utl::openni2_destroy();
+        return 1;
+    }
     Driver driver;
 
     while (true)

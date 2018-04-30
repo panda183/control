@@ -95,6 +95,8 @@ cv::Point3f utl::getRealPointInWorld(cv::Point screenPoint, int depth)
 void utl::readGroundPlane()
 {
     std::ifstream input(GROUND_PLANE_INPUT);
+    if (!input.is_open())
+        throw "Ground plane not found! Please run Setup first.";
     for (int i = 0; i < 4; i++)
         input >> groundPlane[i];
     std::cout << "ground plane: " << groundPlane << std::endl;
