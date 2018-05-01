@@ -23,9 +23,10 @@ void Driver::inputImg(Mat color, Mat depth)
     this->color = color;
     this->depth = depth;
     sd::DetectSign(color, depth);
-    if (sd::signDetected)
+    this->od.detectObstacle(color, depth);
+    if (sd::sign)
     {
-        hug = sd::turn;
+        hug = sd::sign;
         this->signOverride = 15;
     }
     //ld.findLane();

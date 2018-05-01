@@ -19,7 +19,7 @@
 #include <cmath>
 #include "Driver.h"
 #include "Utilities.h"
-#include "OpenNI.h"
+#include "OpenNIHelper.h"
 // test push
 using namespace std;
 using namespace cv;
@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 {
     if(argc != 3)
     {
-        utl::openni2_init();
+        ni::openni2_init();
     }
     else
     {
@@ -79,7 +79,16 @@ int main(int argc, char *argv[])
             return 0;
         }
     }
-    utl::read_config();
+    try
+    {
+        utl::readGroundPlane();
+    }
+    catch (const char* msg)
+    {
+        cerr << msg << endl;
+        ni::openni2_destroy();
+        return 1;
+    }
     Driver driver;
 
     while (true)
@@ -88,7 +97,7 @@ int main(int argc, char *argv[])
         if (argc == 3)
             color = GetImageFromServer();
         else
-            utl::openni2_getmat(color, depth);
+            ni::openni2_getmat(color, depth);
         //xu ly anh img
         if (color.empty() || depth.empty())
             continue;
@@ -98,7 +107,11 @@ int main(int argc, char *argv[])
         driver.inputImg(color, depth);
 
         line(color, driver.target, carPosition, Scalar(255, 255, 255));
-        imshow("depth", depth);
+
+        Mat adjMap;
+        convertScaleAbs(depth, adjMap, 255.0 / 6000);
+
+        imshow("depth", adjMap);
         imshow("color", color);
         if (waitKey(1) == 27)
             break;
@@ -108,7 +121,7 @@ int main(int argc, char *argv[])
     if (argc == 3)
         close(clientSd);
     else
-        utl::openni2_destroy();
+        ni::openni2_destroy();
 
     return 0;
 }

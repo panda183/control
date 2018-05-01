@@ -18,8 +18,14 @@ add_executable( Client
     src/Driver.cpp
     src/SignDetector.cpp
     src/Utilities.cpp
+    src/ObstacleDetector.cpp
+    src/OpenNIHelper.cpp
+)
+add_executable( Setup
+    src/setup.cpp
+    src/Utilities.cpp
+    src/OpenNIHelper.cpp
 )
 
 target_link_libraries( Client ${OpenCV_LIBS} OpenNI2 )
-
-configure_file( ${CMAKE_SOURCE_DIR}/config/tuning.txt tuning.txt COPYONLY)
+target_link_libraries( Setup ${OpenCV_LIBS} OpenNI2 )

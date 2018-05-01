@@ -3,145 +3,84 @@
 #include <queue>
 
 Mat sd::leftSign, sd::rightSign, sd::stopSign;
-bool sd::signDetected;
-int sd::turn;
+int sd::sign;
 
 void sd::init()
 {
-    leftSign = imread("left.jpg");
-    rightSign = imread("right.jpg");
-    stopSign = imread("stop.png");
+    leftSign = imread("img/left.jpg");
+    rightSign = imread("img/right.jpg");
+    stopSign = imread("img/stop.png");
 }
 
-void smoothen(vector<Point> &shape, Point center, int diameter)
+bool isBlue(Scalar color)
 {
-    vector<int> histogram(diameter);
-    for (int i = 1; i < shape.size(); i++)
-    {
-        int d = (int) utl::distance(center, shape[i]);
-        if (d >= diameter) return;
-        histogram[d] += 1;
-    }
-
-    int max_density = 0;
-    for (int i = 0; i < histogram.size(); i++)
-        max_density = max(max_density, histogram[i]);
-
-    for (int i = histogram.size() - 1; i >= 0; i--)
-        if (histogram[i] < max_density / 2)
-            histogram[i] = 0;
-        else
-            break;
-
-    int remove_count = 0;
-    for (int i = 0; i < shape.size(); i++)
-        if (histogram[ (int) utl::distance(shape[i], center) ] == 0)
-        {
-            remove_count++;
-            shape[i] = Point(-1, -1);
-        }
-    if (remove_count > shape.size() / 8)
-        shape.clear();
-
-    vector<Point> tmp(shape);
-    shape.clear();
-    for (int i = 0; i < tmp.size(); i++)
-        if (tmp[i] != Point(-1, -1))
-            shape.push_back(tmp[i]);
+    int minH = 50, minS = 100, minV = 40,
+        maxH = 135, maxS = 255, maxV = 255;
+    if ((color[0] < minH) || (color[0] > maxH)) return false;
+    if ((color[1] < minS) || (color[1] > maxS)) return false;
+    if ((color[2] < minV) || (color[2] > maxV)) return false;
+    return true;
 }
 
 void sd::DetectSign(Mat &color, Mat &depth)
 {
-    GaussianBlur( depth, depth, Size(9, 9), 1, 1 );
+    Mat hsv;
+    cvtColor(color, hsv, COLOR_BGR2HSV);
     int oo = 9999999;
-    int NEIGHBOR_DIFF = 1;
-    int MAX_DEPTH = 161, MIN_DIAMETER = 33,
-        MIN_DEPTH = 42, MAX_DIAMETER = 120;
-    int DIAMETER;
+    int NEIGHBOR_DIFF = 7;
+    int RADIUS = 48000;
     int dx[8] = {-1, -1, -1,  0, 0,  1, 1, 1};
     int dy[8] = {-1,  0,  1, -1, 1, -1, 0, 1};
 
-    int d[depth.rows][depth.cols];
+    int d[depth.cols][depth.rows];
     queue<Point> q;
 
-    for (int i = 0; i < depth.rows; i++)
-        for (int j = 0; j < depth.cols; j++)
+    for (int i = 0; i < depth.cols; i++)
+        for (int j = 0; j < depth.rows; j++)
         {
             d[i][j] = oo;
         }
 
-    for (int i = 0; i < depth.rows; i++)
-        for (int j = 0; j < depth.cols; j++)
+    for (int i = 0; i < depth.cols; i++)
+        for (int j = 0; j < depth.rows; j++)
         {
+            Point start(i, j);
+            if (!isBlue(hsv.at<Vec3b>(start))) d[i][j] = 0;
+            if (depth.at<ushort>(start) == 0) d[i][j] = 0;
             if (d[i][j] != oo) continue;
-
             d[i][j] = 0;
-            int s = 1;
-            Point start(i, j), finish(i, j);
             q.push(start);
-            vector<Point> currentGroup;
-            currentGroup.push_back(start);
-            int maxy = -1, miny = oo;
-            int perimeter = 0;
-            int bottom_border = 0;
+            Point p_max(start), p_min(start);
 
             while (!q.empty())
             {
                 Point u = q.front();
-                maxy = max(maxy, u.y);
-                miny = min(miny, u.y);
-                finish = u;
                 q.pop();
                 for (int x = 0; x < 8; x++)
                 {
                     Point v = u + Point(dx[x], dy[x]);
-                    if ((v.x < 0) || (v.x >= depth.rows) || (v.y < 0) || (v.y >= depth.cols)) continue;
-                    if (abs(v.x - start.x) > (maxy - miny))
-                    {
-                        bottom_border++;
-                        continue;
-                    }
+                    if ((v.x < 0) || (v.x >= depth.cols) || (v.y < 0) || (v.y >= depth.rows)) continue;
                     if (d[v.x][v.y] != oo) continue;
-                    if (abs(depth.at<uchar>(v.x, v.y) - depth.at<uchar>(u.x, u.y)) > NEIGHBOR_DIFF)
-                    {
-                        perimeter++;
-                        continue;
-                    }
+                    if (abs(depth.at<ushort>(v) - depth.at<ushort>(u)) > NEIGHBOR_DIFF) continue;
+                    if (!isBlue(hsv.at<Vec3b>(v))) continue;
                     d[v.x][v.y] = d[u.x][u.y] + 1;
                     q.push(v);
-                    currentGroup.push_back(v);
-                    s += 1;
+                    p_max.x = max(p_max.x, v.x);
+                    p_max.y = max(p_max.y, v.y);
+                    p_min.x = min(p_min.x, v.x);
+                    p_min.y = min(p_min.y, v.y);
                 }
             }
-            Point center(0, 0);
-            int avg_depth = 0;
-            for (int i = 0; i < currentGroup.size(); i++)
-            {
-                center += currentGroup[i];
-                avg_depth += depth.at<uchar>(currentGroup[i].x, currentGroup[i].y);
-            }
-            center = center / (int)currentGroup.size();
-            avg_depth = avg_depth / (int)currentGroup.size();
+            Point center = Point(p_max.x + p_min.x, p_max.y + p_min.y) / 2;
+            int distance = depth.at<ushort>(center);
+            int radius = (p_max.x - p_min.x) / 2;
 
-            if ((avg_depth < 20) || (avg_depth > 165)) continue;
-
-            DIAMETER = 5000 / avg_depth;
-
-            if (perimeter > DIAMETER * PI * 5) continue;
-            if (bottom_border > DIAMETER * 1.5) continue;
-
-            smoothen(currentGroup, center, DIAMETER);
-
-            for (int i = 0; i < currentGroup.size(); i++)
-                if (utl::distance(center, currentGroup[i]) > (DIAMETER * 0.55))
-                    s = 0;
-            if (abs(s - (DIAMETER * DIAMETER / 4 * PI)) > DIAMETER * DIAMETER / 4 * PI * 0.3) continue;
+            if (abs(distance * radius - RADIUS) > RADIUS / 10) continue;
             // cout << avg_depth << endl;
-            for (int i = 0; i < currentGroup.size(); i++)
-                currentGroup[i] = Point(currentGroup[i].y, currentGroup[i].x);
-            Rect r = boundingRect(currentGroup);
-            Mat sign = color(r);
-            recognizeSign(sign);
+            Rect r = Rect(p_min, p_max);
+            if (abs(r.height * 1.0 / r.width - 1) > 0.2) continue;
+            // Mat sign = color(r);
+            // recognizeSign(sign);
             rectangle(color, r, Scalar(0, 0, 255));
         }
 }
@@ -151,24 +90,13 @@ int sd::recognizeSign(Mat &sign)
     double p_left = similar(sign, leftSign);
     double p_right = similar(sign, rightSign);
     double p_stop = similar(sign, stopSign);
-    double Max = max(max(p_left, p_right), p_stop);
-    if (Max < 0.5) return 0;
-    if (abs(Max - p_left) < 1e-4)
-    {
-        cout << "left " << p_left << endl;
-        return LEFT;
-    }
-    else
-    if (abs(Max - p_right) < 1e-4)
-    {
-        cout << "right " << p_right << endl;
-        return LEFT;
-    }
-    if (abs(Max - p_stop) < 1e-4)
-    {
-        cout << "stop " << p_stop << endl;
-        return LEFT;
-    }
+    double p_max = max(p_left, max(p_right, p_stop));
+
+    if (p_max < 0.5) return NO_SIGN;
+    // cout << p_max << " ";
+    if (p_max == p_left) return LEFT;
+    if (p_max == p_right) return RIGHT;
+    if (p_max == p_stop) return STOP;
 }
 
 double sd::distance(Point p1, Point p2)

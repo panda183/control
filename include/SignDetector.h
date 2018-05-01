@@ -3,12 +3,12 @@
 
 #include <opencv2/opencv.hpp>
 #include "LaneDetector.h"
+#include "Utilities.h"
 
 namespace sd
 {
     extern Mat leftSign, rightSign, stopSign;
-    extern bool signDetected;
-    extern int turn;
+    extern int sign;
     void init();
     double similar(Mat &img1, Mat &img2);
     void equalizeHistBGR(Mat &src, Mat &dst);

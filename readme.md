@@ -1,10 +1,14 @@
 # Requirement:
 - opencv
-- openni2
 - cmake
 - g++
+- openni2
 
 # How to build:
+```
+$ cp CMakeLists.template CMakeLists.txt
+```
+Edit OpenNI2's directory in CMakeLists.txt
 ```
 $ mkdir build
 $ cd build
@@ -15,7 +19,6 @@ $ make
 # How to run:
 ```
 $ cd build
-$ ./Client [server ip] [port]
-or
+$ ./Setup
 $ ./Client
 ```

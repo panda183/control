@@ -2,10 +2,11 @@
 #define DRIVER_H
 
 #include "LaneDetector.h"
+#include "ObstacleDetector.h"
 
 class Driver
 {
-public:
+  public:
     Driver();
     ~Driver();
     int hug;
@@ -14,8 +15,10 @@ public:
     void inputImg(Mat color, Mat depth);
     double getSteering();
     Point target;
-private:
+
+  private:
     LaneDetector ld;
+    ObstacleDetector od;
     Mat color, depth;
     Point lastTarget;
     int signOverride = 0;
