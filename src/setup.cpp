@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
         k = waitKey(1);
         if (k != -1) break;
     }
-    if (k != 13)
+    if (k == 27)
         cout << "exiting" << endl;
     else
     {
