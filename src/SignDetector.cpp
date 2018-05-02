@@ -14,19 +14,30 @@ void sd::DetectSign(Mat &color, Mat &depth)
 {
     int cols = color.cols;
     int rows = color.rows;
-    Mat hsv, gray;
-    Rect roiDetect = Rect(int(cols * 0.3), int(rows * 0.1), int(cols * 0.46), int(rows * 0.3));
+    Mat hsv, range1, range2, range3;
+    Rect roiDetect = Rect(int(cols * 0.1), int(rows * 0.1), int(cols * 0.8), int(rows * 0.8));
     rectangle(color, roiDetect, Scalar(0, 0, 255));
     cvtColor(color(roiDetect), hsv, COLOR_BGR2HSV);
-    int minH = 50, minS = 100, minV = 40,
-        maxH = 135, maxS = 255, maxV = 255;
-    Scalar min = Scalar(minH, minS, minV);   //HSV VALUE
-    Scalar max = Scalar(maxH, maxS, maxV); //HSV VALUE
-    inRange(hsv, min, max, gray);
-    // imshow("HSV",gray);
+    int minS = 100, maxS = 255,
+        minV = 50, maxV = 255,
+        minH_1 = 50, maxH_1 = 135,
+        minH_2 = 0, maxH_2 = 10,
+        minH_3 = 170, maxH_3 = 180;
+
+    Scalar min1 = Scalar(minH_1, minS, minV);   //HSV VALUE
+    Scalar max1 = Scalar(maxH_1, maxS, maxV); //HSV VALUE
+    Scalar min2= Scalar(minH_2, minS, minV) ;
+    Scalar max2= Scalar(maxH_2, maxS, maxV);
+    Scalar min3= Scalar(minH_3, minS, minV);
+    Scalar max3= Scalar(maxH_3, maxS, maxV);
+    inRange(hsv, min1, max1, range1);
+    inRange(hsv, min2, max2, range2);
+    inRange(hsv, min3, max3, range3);
+    Mat gray = range1 | range2 | range3;
+    imshow("HSV",gray);
     erode(gray, gray, Mat(), Point(-1, -1), 2, 1, 1);
     dilate(gray, gray, Mat(), Point(-1, -1), 8, 1, 1);
-    // imshow("dilate",gray);
+    imshow("dilate",gray);
     vector<vector<Point>> contours;
     findContours(gray, contours, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
     ushort minDistance = 30000;
@@ -42,14 +53,14 @@ void sd::DetectSign(Mat &color, Mat &depth)
         Point center(rect.x + rect.width / 2, rect.y + rect.height / 2);
         int radius = rect.height / 2;
         int RADIUS = 48000;
-        float HEIGHT = 265;
+        float HEIGHT = 72;
         ushort distance = depth.at<ushort>(center);
-        if (abs(RADIUS - radius * distance) > RADIUS / 10) continue;
+        if (abs(RADIUS - radius * distance) > RADIUS / 7) continue;
         // cout << radius << " : " << distance << endl;
 
         Point3f p = utl::getRealPointInWorld(center, distance);
         float signHeight = utl::dToPlane(p, utl::groundPlane);
-        if (abs(signHeight - HEIGHT) > 30) continue;
+        // if (abs(signHeight - HEIGHT) > 30) continue;
         cout << "height:" << signHeight << " ";
 
         rectangle(color, rect, Scalar(0, 0, 255));
