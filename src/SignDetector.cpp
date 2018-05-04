@@ -49,7 +49,7 @@ void sd::DetectSign(Mat &color, Mat &depth)
     imshow("dilate",gray);
 
     int oo = 9999999;
-    int NEIGHBOR_DIFF = 7;
+    int NEIGHBOR_DIFF = 15;
     int RADIUS = 48000;
     int dx[8] = {-1, -1, -1,  0, 0,  1, 1, 1};
     int dy[8] = {-1,  0,  1, -1, 1, -1, 0, 1};
@@ -67,7 +67,7 @@ void sd::DetectSign(Mat &color, Mat &depth)
         for (int j = 0; j < depth.rows; j++)
         {
             Point start(i, j);
-            if (!isBlue(hsv.at<Vec3b>(start))) d[i][j] = 0;
+            if (gray.at<uchar>(start) != 255) d[i][j] = 0;
             if (depth.at<ushort>(start) == 0) d[i][j] = 0;
             if (d[i][j] != oo) continue;
             d[i][j] = 0;
@@ -84,7 +84,7 @@ void sd::DetectSign(Mat &color, Mat &depth)
                     if ((v.x < 0) || (v.x >= depth.cols) || (v.y < 0) || (v.y >= depth.rows)) continue;
                     if (d[v.x][v.y] != oo) continue;
                     if (abs(depth.at<ushort>(v) - depth.at<ushort>(u)) > NEIGHBOR_DIFF) continue;
-                    if (!isBlue(hsv.at<Vec3b>(v))) continue;
+                    if (gray.at<uchar>(v) != 255) continue;
                     d[v.x][v.y] = d[u.x][u.y] + 1;
                     q.push(v);
                     p_max.x = max(p_max.x, v.x);
@@ -95,9 +95,9 @@ void sd::DetectSign(Mat &color, Mat &depth)
             }
             Point center = Point(p_max.x + p_min.x, p_max.y + p_min.y) / 2;
             int distance = depth.at<ushort>(center);
-            int radius = (p_max.x - p_min.x) / 2;
+            int radius = (p_max.y - p_min.y) / 2;
 
-            if (abs(distance * radius - RADIUS) > RADIUS / 10) continue;
+            if (abs(distance * radius - RADIUS) > RADIUS / 15) continue;
             // cout << avg_depth << endl;
             Rect r = Rect(p_min, p_max);
             if (abs(r.height * 1.0 / r.width - 1) > 0.2) continue;
