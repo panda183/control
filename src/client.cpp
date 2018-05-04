@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 {
     if(argc != 3)
     {
-        ni::openni2_init();
+        // ni::openni2_init();
     }
     else
     {
@@ -91,16 +91,18 @@ int main(int argc, char *argv[])
     }
     Driver driver;
 
-    while (true)
+    // while (true)
     {
         Mat color, depth;
-        if (argc == 3)
-            color = GetImageFromServer();
-        else
-            ni::openni2_getmat(color, depth);
+        // if (argc == 3)
+        //     color = GetImageFromServer();
+        // else
+        //     ni::openni2_getmat(color, depth);
         //xu ly anh img
-        if (color.empty() || depth.empty())
-            continue;
+        color = imread("dataset/Sample02/rgb/10.png");
+        depth = imread("dataset/Sample02/depth/10.png", IMREAD_ANYDEPTH);
+        // if (color.empty() || depth.empty())
+        //     continue;
 
         Point carPosition(color.cols / 2, color.rows);
 
@@ -113,8 +115,9 @@ int main(int argc, char *argv[])
 
         imshow("depth", adjMap);
         imshow("color", color);
-        if (waitKey(1) == 27)
-            break;
+        // if (waitKey(1) == 27)
+        //     break;
+        waitKey();
         if (argc == 3) SendDataToServer(18, driver.getSteering());
     }
 
