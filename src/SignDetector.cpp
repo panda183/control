@@ -24,8 +24,30 @@ bool isBlue(Scalar color)
 
 void sd::DetectSign(Mat &color, Mat &depth)
 {
-    Mat hsv;
+    Mat hsv, range1, range2, range3;
     cvtColor(color, hsv, COLOR_BGR2HSV);
+    
+    int minS = 100, maxS = 255,
+        minV = 50, maxV = 255,
+        minH_1 = 50, maxH_1 = 135,
+        minH_2 = 0, maxH_2 = 10,
+        minH_3 = 170, maxH_3 = 180;
+
+    Scalar min1 = Scalar(minH_1, minS, minV);   //HSV VALUE
+    Scalar max1 = Scalar(maxH_1, maxS, maxV); //HSV VALUE
+    Scalar min2= Scalar(minH_2, minS, minV) ;
+    Scalar max2= Scalar(maxH_2, maxS, maxV);
+    Scalar min3= Scalar(minH_3, minS, minV);
+    Scalar max3= Scalar(maxH_3, maxS, maxV);
+    inRange(hsv, min1, max1, range1);
+    inRange(hsv, min2, max2, range2);
+    inRange(hsv, min3, max3, range3);
+    Mat gray = range1 | range2 | range3;
+    imshow("HSV",gray);
+    erode(gray, gray, Mat(), Point(-1, -1), 2, 1, 1);
+    dilate(gray, gray, Mat(), Point(-1, -1), 8, 1, 1);
+    imshow("dilate",gray);
+
     int oo = 9999999;
     int NEIGHBOR_DIFF = 7;
     int RADIUS = 48000;
