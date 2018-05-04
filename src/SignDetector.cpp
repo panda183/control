@@ -49,8 +49,9 @@ void sd::DetectSign(Mat &color, Mat &depth)
     imshow("dilate",gray);
 
     int oo = 9999999;
-    int NEIGHBOR_DIFF = 15;
+    int NEIGHBOR_DIFF = 30;
     int RADIUS = 48000;
+    int min_d = 30000;
     int dx[8] = {-1, -1, -1,  0, 0,  1, 1, 1};
     int dy[8] = {-1,  0,  1, -1, 1, -1, 0, 1};
 
@@ -73,10 +74,13 @@ void sd::DetectSign(Mat &color, Mat &depth)
             d[i][j] = 0;
             q.push(start);
             Point p_max(start), p_min(start);
+            int distance = 0, count = 0;
 
             while (!q.empty())
             {
                 Point u = q.front();
+                distance += depth.at<ushort>(u);
+                count += 1;
                 q.pop();
                 for (int x = 0; x < 8; x++)
                 {
@@ -94,17 +98,24 @@ void sd::DetectSign(Mat &color, Mat &depth)
                 }
             }
             Point center = Point(p_max.x + p_min.x, p_max.y + p_min.y) / 2;
-            int distance = depth.at<ushort>(center);
+            distance /= count;
             int radius = (p_max.y - p_min.y) / 2;
 
             if (abs(distance * radius - RADIUS) > RADIUS / 15) continue;
             // cout << avg_depth << endl;
             Rect r = Rect(p_min, p_max);
+            r.y -= 3;
+            r.x += 1;
+            r.width += 1;
             if (abs(r.height * 1.0 / r.width - 1) > 0.2) continue;
-            // Mat sign = color(r);
-            // recognizeSign(sign);
-            rectangle(color, r, Scalar(0, 0, 255));
+
+            if (distance > min_d) continue;
+            Mat matSign = color(r);
+            sign = recognizeSign(matSign);
+            min_d = distance;
+            cv::rectangle(color, r, Scalar(0, 0, 255));
         }
+        cout << sign << endl;
 }
 
 int sd::recognizeSign(Mat &sign)

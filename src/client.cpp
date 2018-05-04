@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 {
     if(argc != 3)
     {
-        // ni::openni2_init();
+        ni::openni2_init();
     }
     else
     {
@@ -90,20 +90,17 @@ int main(int argc, char *argv[])
         return 1;
     }
     Driver driver;
-    int i = 0;
+
     while (true)
     {
         Mat color, depth;
-        // if (argc == 3)
-        //     color = GetImageFromServer();
-        // else
-        //     ni::openni2_getmat(color, depth);
+        if (argc == 3)
+            color = GetImageFromServer();
+        else
+            ni::openni2_getmat(color, depth);
         //xu ly anh img
-        color = imread("dataset/Sample02/rgb/" + to_string(i) + ".png");
-        depth = imread("dataset/Sample02/depth/" + to_string(i) + ".png", IMREAD_ANYDEPTH);
-        i++;
         if (color.empty() || depth.empty())
-            break;
+            continue;
 
         Point carPosition(color.cols / 2, color.rows);
 
