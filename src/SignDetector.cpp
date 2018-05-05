@@ -1,5 +1,6 @@
 #include "SignDetector.h"
 
+using namespace std;
 Mat sd::leftSign, sd::rightSign, sd::stopSign;
 int sd::sign;
 
@@ -19,7 +20,7 @@ void sd::DetectSign(Mat &color, Mat &depth)
     rectangle(color, roiDetect, Scalar(0, 0, 255));
     cvtColor(color(roiDetect), hsv, COLOR_BGR2HSV);
     int minS = 100, maxS = 255,
-        minV = 50, maxV = 255,
+        minV = 100, maxV = 255,
         minH_1 = 50, maxH_1 = 135,
         minH_2 = 0, maxH_2 = 10,
         minH_3 = 170, maxH_3 = 180;
@@ -65,7 +66,6 @@ void sd::DetectSign(Mat &color, Mat &depth)
 
         rectangle(color, rect, Scalar(0, 0, 255));
         Mat matsign = color(rect);
-        resize(matsign, matsign, Size(rect.height, rect.height));
         imshow("matsign", matsign);
 
         int tmp = recognizeSign(matsign);
