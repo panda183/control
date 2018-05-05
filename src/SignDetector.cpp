@@ -2,6 +2,7 @@
 #include "Utilities.h"
 #include <queue>
 
+using namespace std;
 Mat sd::leftSign, sd::rightSign, sd::stopSign;
 int sd::sign;
 
@@ -28,7 +29,7 @@ void sd::DetectSign(Mat &color, Mat &depth)
     cvtColor(color, hsv, COLOR_BGR2HSV);
     
     int minS = 100, maxS = 255,
-        minV = 50, maxV = 255,
+        minV = 100, maxV = 255,
         minH_1 = 50, maxH_1 = 135,
         minH_2 = 0, maxH_2 = 10,
         minH_3 = 170, maxH_3 = 180;
@@ -101,7 +102,7 @@ void sd::DetectSign(Mat &color, Mat &depth)
             distance /= count;
             int radius = (p_max.y - p_min.y) / 2;
 
-            if (abs(distance * radius - RADIUS) > RADIUS / 15) continue;
+            if (abs(distance * radius - RADIUS) > RADIUS / 7) continue;
             // cout << avg_depth << endl;
             Rect r = Rect(p_min, p_max);
             r.y -= 3;

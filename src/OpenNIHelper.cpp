@@ -27,7 +27,6 @@ void ni::openni2_getmat(cv::Mat &mat_color, cv::Mat &mat_depth)
     color.readFrame(&colorFrame);
     const openni::RGB888Pixel *colorImageBuffer = (const openni::RGB888Pixel *)colorFrame.getData();
 
-    mat_color.create(colorFrame.getHeight(), colorFrame.getWidth(), CV_8UC3);
     memcpy(mat_color.data, colorImageBuffer, 3 * colorFrame.getHeight() * colorFrame.getWidth() * sizeof(uint8_t));
 
     cv::cvtColor(mat_color, mat_color, CV_BGR2RGB);
@@ -35,7 +34,6 @@ void ni::openni2_getmat(cv::Mat &mat_color, cv::Mat &mat_depth)
     depth.readFrame(&depthFrame);
     const openni::DepthPixel *depthImageBuffer = (const openni::DepthPixel *)depthFrame.getData();
 
-    mat_depth.create(depthFrame.getHeight(), depthFrame.getWidth(), CV_16UC1);
     memcpy(mat_depth.data, depthImageBuffer, depthFrame.getHeight() * depthFrame.getWidth() * sizeof(uint16_t));
 }
 

@@ -93,7 +93,8 @@ int main(int argc, char *argv[])
 
     while (true)
     {
-        Mat color, depth;
+        Mat color(480, 640, CV_8UC3),
+            depth(480, 640, CV_16UC1);
         if (argc == 3)
             color = GetImageFromServer();
         else
