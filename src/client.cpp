@@ -33,9 +33,11 @@ bool RunCar()
     do{
         ni::openni2_getmat(colorImg, depthImg);
         utl::splitGround(colorImg,depthImg);
+        auto cur_time = std::chrono::system_clock::now();
         sd::DetectSign(depthImg);
         imshow("ground",utl::groundImg);
         imshow("nonGround",utl::nonGroundImg);
+        cout<< chrono::duration<double, milli> (std::chrono::system_clock::now()-cur_time).count()<<endl;
     }while(waitKey(1)!=27);
     return true;
 }
