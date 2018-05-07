@@ -11,8 +11,9 @@ void sd::init()
     stopSign = imread("img/stop.png");
 }
 
-void sd::DetectSign(Mat &color, Mat &depth)
+void sd::DetectSign(Mat &depth)
 {
+    Mat color = utl::nonGroundImg;
     int cols = color.cols;
     int rows = color.rows;
     Mat hsv, range1, range2, range3;
@@ -53,8 +54,8 @@ void sd::DetectSign(Mat &color, Mat &depth)
         rect.height -= 6 * 2;
         Point center(rect.x + rect.width / 2, rect.y + rect.height / 2);
         int radius = rect.height / 2;
-        // int RADIUS = 67000;
-        int RADIUS = 48000;
+        int RADIUS = 67000;
+        // int RADIUS = 48000;
         float HEIGHT = 72;
         ushort distance = depth.at<ushort>(center);
         if (abs(RADIUS - radius * distance) > RADIUS / 7) continue;
@@ -78,6 +79,7 @@ void sd::DetectSign(Mat &color, Mat &depth)
     if (sign == LEFT) cout << "left" << endl;
     else if (sign == RIGHT) cout << "right" << endl;
     else if (sign == STOP) cout << "stop" << endl;
+    else cout << endl;
 }
 
 int sd::recognizeSign(Mat &sign)

@@ -8,6 +8,7 @@
 #include <chrono>
 #include <stdlib.h>
 #include "LaneDetector.h"
+#include "SignDetector.h"
 
 using namespace cv;
 using namespace std;
@@ -32,6 +33,7 @@ bool RunCar()
     do{
         ni::openni2_getmat(colorImg, depthImg);
         utl::splitGround(colorImg,depthImg);
+        sd::DetectSign(depthImg);
         imshow("ground",utl::groundImg);
         imshow("nonGround",utl::nonGroundImg);
     }while(waitKey(1)!=27);
@@ -40,6 +42,7 @@ bool RunCar()
 void init()
 {
     ni::openni2_init();
+    sd::init();
     utl::readGroundPlane();
 }
 
