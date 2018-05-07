@@ -53,7 +53,7 @@ void sd::DetectSign(Mat &color, Mat &depth)
         rect.height -= 6 * 2;
         Point center(rect.x + rect.width / 2, rect.y + rect.height / 2);
         int radius = rect.height / 2;
-        int RADIUS = 67000;
+        // int RADIUS = 67000;
         int RADIUS = 48000;
         float HEIGHT = 72;
         ushort distance = depth.at<ushort>(center);

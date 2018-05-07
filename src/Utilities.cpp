@@ -2,7 +2,22 @@
 #include <fstream>
 
 cv::Vec4f utl::groundPlane;
-
+cv::Mat utl::groundImg,utl::nonGroundImg;
+void utl::splitGround(cv::Mat &colorImg,cv::Mat &depth){
+    groundImg=cv::Mat::zeros(480,640,CV_8UC3),
+    nonGroundImg=cv::Mat::zeros(480,640,CV_8UC3);
+    for(int i=0;i<colorImg.cols;i++){
+        for(int j=0;j<colorImg.rows;j++){
+            if(depth.at<ushort>(j,i)>0){
+                Point3f p=getRealPointInWorld(Point(i,j),depth.at<ushort>(j,i));
+                if(dToPlane(p,groundPlane)>50) nonGroundImg.at<Vec3b>(j,i)=colorImg.at<Vec3b>(j,i);
+                else groundImg.at<Vec3b>(j,i)=colorImg.at<Vec3b>(j,i);
+            }else{
+                groundImg.at<Vec3b>(j,i)=colorImg.at<Vec3b>(j,i);
+            }
+        }
+    }
+}
 double utl::computeAngle(cv::Point A, cv::Point O, cv::Point B)
 {
     if ((A == O) || (B == O))
@@ -14,6 +29,18 @@ double utl::computeAngle(cv::Point A, cv::Point O, cv::Point B)
     double res = acos(vOA.dot(vOB) / (dOA * dOB));
     res = res / PI * 180;
     return res;
+}
+cv::Point3f utl::rayCastGroundPlane(cv::Point screenPoint, cv::Vec4f plane){
+    cv::Point3f vu;
+    vu=utl::getRealPointInWorld(screenPoint,2000);
+    float t=-plane[3]/(plane[0]*vu.x+plane[1]*vu.y+plane[2]*vu.z);
+    return cv::Point3f(vu.x*t,vu.y*t,vu.z*t);
+}
+cv::Point2f utl::worldToScreen(cv::Point3f world){
+    float px = 2.0 * world.z * tan(60.0 * PI / (180.0 * 2)); //fovH
+    float py = 2.0 * world.z * tan(49.5 * PI / (180.0 * 2)); //fovV
+    
+    return cv::Point2f(320.0-world.x*640.0/px,240.0-world.y*640.0/py);
 }
 //Khoang cach tu diem toi mat phang
 float utl::dToPlane(cv::Point3f p, cv::Vec4f plane)
@@ -30,7 +57,7 @@ cv::Vec4f utl::findPlaneEquation(std::vector<cv::Point3f> _3Point)
     vAB = cv::Vec3f(_3Point.at(1).x - _3Point.at(0).x, _3Point.at(1).y - _3Point.at(0).y, _3Point.at(1).z - _3Point.at(0).z);
     vAC = cv::Vec3f(_3Point.at(2).x - _3Point.at(0).x, _3Point.at(2).y - _3Point.at(0).y, _3Point.at(2).z - _3Point.at(0).z);
     vn = cv::Vec3f(vAB.y * vAC.z - vAB.z * vAC.y, vAB.z * vAC.x - vAB.x * vAC.z, vAB.x * vAC.y - vAB.y * vAC.x);
-    res = cv::Vec4f(vn.x, vn.y, vn.z, -(vn.x * _3Point.at(0).x + vn.y * _3Point.at(0).y + vn.z * _3Point.at(0).z));
+    res = cv::Vec4f(vn.x, vn.y, vn.z, -(vn.x * _3Point.at(0).x + vn.y * _3Point.at(0).y + vn.z * _3Point.at(0).z))/1000.0;
     return res;
 }
 //Tim toa do trong the gioi that, goc toa do la camera
