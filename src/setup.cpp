@@ -1,15 +1,16 @@
 #include <iostream>
 #include <math.h>
 #include <opencv2/opencv.hpp>
-#include "Driver.h"
 #include "Utilities.h"
 #include "OpenNIHelper.h"
+#include "LaneDetector.h"
 #include <fstream>
 
 using namespace std;
 using namespace cv;
 
-Mat color, depth;
+Mat depth(480, 640, CV_16UC1),
+    color(480, 640, CV_8UC3);
 Vec4f groundPlane;       //phuong trinh mat phang
 vector<Point3f> _3Point; //3 diem tren mat phang
 
@@ -27,6 +28,7 @@ void CallBackFunc(int event, int x, int y, int flags, void *userdata)
         {
             groundPlane = utl::findPlaneEquation(_3Point);
             cout << "Plane:" << groundPlane << endl;
+            ld::birdView(color,groundPlane);
             _3Point.clear();
         }
     }
@@ -47,10 +49,8 @@ int main(int argc, char *argv[])
     while (1)
     {
         ni::openni2_getmat(color, depth);
-
         Mat adjMap;
         convertScaleAbs(depth, adjMap, 255.0 / 6000);
-
         imshow("color", color);
         imshow("depth", adjMap);
         k = waitKey(1);

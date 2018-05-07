@@ -1,4 +1,5 @@
 #include "LaneDetector.h"
+#include "Utilities.h"
 
 int ld::xCenterLane=320;
 Vec3f ld::laneCurve;
@@ -52,38 +53,49 @@ Vec3f ld::CurveEstimation(vector<Point2f> lanePoints) {
     }
     return Vec3f(a[0], a[1], a[2]);
 }
-Mat ld::birdView(Mat &input)
+
+Mat ld::birdView(Mat &input,Vec4f groundPlane)
 {
+    Point3f M,N,P,Q;
+    M=utl::rayCastGroundPlane(Point(0,480),groundPlane);
+    N=utl::rayCastGroundPlane(Point(640,480),groundPlane);
+    Point3f vAB,vAC,vu;
+    vAB=N-M;
+    vAC=cv::Point3f(groundPlane[0],groundPlane[1],groundPlane[2]);
+    vu = cv::Vec3f(vAB.y * vAC.z - vAB.z * vAC.y, vAB.z * vAC.x - vAB.x * vAC.z, vAB.x * vAC.y - vAB.y * vAC.x);
+    double dVu=sqrt(vu.x*vu.x+vu.y*vu.y+vu.z*vu.z);
+    double dMN=sqrt(vAB.x*vAB.x+vAB.y*vAB.y+vAB.z*vAB.z);
+    cout<<"1 pixel="<<dMN/LANE_SIZE<<"mm"<<endl;
+    P=M-vu*((dMN/LANE_SIZE*480)/dVu);
+    Q=N-vu*((dMN/LANE_SIZE*480)/dVu);
     Mat output;
     // Input Quadilateral or Image plane coordinates
     Point2f inputQuad[4];
     // Output Quadilateral or World plane coordinates
     Point2f outputQuad[4];
-
     // Lambda Matrix
     Mat lambda;
-
     // Set the lambda matrix the same type and size as input
     lambda = Mat::zeros(input.rows, input.cols, input.type());
     // The 4 points that select quadilateral on the input , from top-left in clockwise order
     // These four pts are the sides of the rect box used as input
-
-
-    inputQuad[0] = Point2f(290, 120);
-    inputQuad[1] = Point2f(350, 120);
-    inputQuad[2] = Point2f(640, 480);
-    inputQuad[3] = Point2f(0, 480);
+    inputQuad[0] = Point2f(0, 480);
+    inputQuad[1] = Point2f(640, 480);
+    inputQuad[2] = utl::worldToScreen(P);
+    inputQuad[3] = utl::worldToScreen(Q);
     // The 4 points where the mapping is to be done , from top-left in clockwise order
-    outputQuad[0] = Point2f(290, 50);
-    outputQuad[1] = Point2f(350, 50);
-    outputQuad[2] = Point2f(370, 480);
-    outputQuad[3] = Point2f(270, 480);
+    outputQuad[0] = Point2f((640-LANE_SIZE)/2, 480);
+    outputQuad[1] = Point2f((640-LANE_SIZE)/2+LANE_SIZE, 480);
+    outputQuad[2] = Point2f((640-LANE_SIZE)/2, 0);
+    outputQuad[3] = Point2f((640-LANE_SIZE)/2+LANE_SIZE, 0);
 
     // Get the Perspective Transform Matrix i.e. lambda
     lambda = getPerspectiveTransform(inputQuad, outputQuad);
     warpPerspective(input, output, lambda, output.size());
+    
     cvtColor(output, output, COLOR_BGR2GRAY);
     threshold(output, output, 200, 255, CV_THRESH_BINARY);
+    imshow("op",output);
     return output;  
 }
 int ld::avgX(Mat &window,int whitePixel){
