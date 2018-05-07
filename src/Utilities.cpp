@@ -2,20 +2,26 @@
 #include <fstream>
 
 cv::Vec4f utl::groundPlane;
-cv::Mat utl::groundImg,utl::nonGroundImg;
+cv::Mat utl::groundImg=Mat::zeros(480,640,CV_8UC3)
+        ,utl::nonGroundImg=Mat::zeros(480,640,CV_8UC3);
 cv::Mat utl::transformMatrix;
 
 void utl::splitGround(cv::Mat &colorImg,cv::Mat &depth){
-    groundImg=cv::Mat::zeros(480,640,CV_8UC3),
-    nonGroundImg=cv::Mat::zeros(480,640,CV_8UC3);
     for(int i=0;i<colorImg.cols;i++){
         for(int j=0;j<colorImg.rows;j++){
             if(depth.at<ushort>(j,i)>0){
                 Point3f p=getRealPointInWorld(Point(i,j),depth.at<ushort>(j,i));
-                if(dToPlane(p,groundPlane)>50) nonGroundImg.at<Vec3b>(j,i)=colorImg.at<Vec3b>(j,i);
-                else groundImg.at<Vec3b>(j,i)=colorImg.at<Vec3b>(j,i);
+                if(dToPlane(p,groundPlane)>50){
+                    nonGroundImg.at<Vec3b>(j,i)=colorImg.at<Vec3b>(j,i);
+                    groundImg.at<Vec3b>(j,i)=Vec3b(0,0,0);
+                }
+                else {
+                    groundImg.at<Vec3b>(j,i)=colorImg.at<Vec3b>(j,i);
+                    nonGroundImg.at<Vec3b>(j,i)=Vec3b(0,0,0);
+                }
             }else{
                 groundImg.at<Vec3b>(j,i)=colorImg.at<Vec3b>(j,i);
+                nonGroundImg.at<Vec3b>(j,i)=Vec3b(0,0,0);
             }
         }
     }

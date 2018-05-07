@@ -3,7 +3,7 @@
 
 int ld::xCenterLane=320;
 Vec3f ld::laneCurve;
-int ld::hugLane=1;
+int ld::hugLane=-1;
 
 Vec3f ld::CurveEstimation(vector<Point2f> lanePoints) {
     int i, j, k;
@@ -85,7 +85,7 @@ void ld::findLane(){
     Rect windowSlide=Rect(0,0,80,20);
     int tempXLane=xCenterLane+hugLane*LANE_SIZE/2;
     int diff=0;
-    vector<Point2f> lanePoints;
+    //vector<Point2f> lanePoints;
     int footLane=0;
     for(int i=0;i<10;i++){
         Rect curWindow=Rect(tempXLane-windowSlide.width/2,lane.rows-(windowSlide.height*(i+1)),windowSlide.width,windowSlide.height);
@@ -94,7 +94,7 @@ void ld::findLane(){
         if(whitePixel*1.0/(windowSlide.width*windowSlide.height)>0.1&&whitePixel*1.0/(windowSlide.width*windowSlide.height)<0.3){
             diff=(windowSlide.width/2-avgX(windowMat,whitePixel));
             circle(display,Point2f(curWindow.x-diff+windowSlide.width/2,lane.rows-(windowSlide.height*(i+1))+windowSlide.height/2),4,Scalar(0,0,255),-1);
-            lanePoints.push_back(Point2f(lane.rows-(windowSlide.height*(i+1))+windowSlide.height/2,curWindow.x-diff+windowSlide.width/2-hugLane*LANE_SIZE/2));
+            //lanePoints.push_back(Point2f(lane.rows-(windowSlide.height*(i+1))+windowSlide.height/2,curWindow.x-diff+windowSlide.width/2-hugLane*LANE_SIZE/2));
             if(footLane==0) footLane=curWindow.x-diff+windowSlide.width/2;
         }
         curWindow.x-=diff;
@@ -102,13 +102,14 @@ void ld::findLane(){
         rectangle(display,curWindow,Scalar(255));
         curWindow.x-=LANE_SIZE*hugLane;
         rectangle(display,curWindow,Scalar(255));
+        if(footLane!=0) break;
     }
     if(footLane!=0) xCenterLane=footLane-hugLane*LANE_SIZE/2;    
     circle(display,Point2f(xCenterLane,lane.rows),10,Scalar(255),-1);
-    if(lanePoints.size()>2){
-        laneCurve=CurveEstimation(lanePoints);
-    }
-    drawCurve(display,laneCurve);
+    // if(lanePoints.size()>2){
+    //     laneCurve=CurveEstimation(lanePoints);
+    // }
+    // drawCurve(display,laneCurve);
     imshow("display",display);
 }
 

@@ -47,8 +47,8 @@ int main(int argc, char *argv[])
     while (1)
     {
         //ni::openni2_getmat(color, depth);
-        color=imread("dataset/Sample01/rgb/"+to_string(i)+".png");
-        depth=imread("dataset/Sample01/depth/"+to_string(i)+".png",CV_LOAD_IMAGE_ANYDEPTH);
+        color=imread("dataset/Sample02/rgb/"+to_string(i)+".png");
+        depth=imread("dataset/Sample02/depth/"+to_string(i)+".png",CV_LOAD_IMAGE_ANYDEPTH);
         i++;
         Mat adjMap;
         convertScaleAbs(depth, adjMap, 255.0 / 6000);

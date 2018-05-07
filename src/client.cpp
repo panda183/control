@@ -30,15 +30,22 @@ bool RunCar()
 {
     int i=0;
     do{
+        auto cur_time = std::chrono::system_clock::now();
         //ni::openni2_getmat(colorImg, depthImg);
-        colorImg=imread("dataset/Sample01/rgb/"+to_string(i)+".png");
-        depthImg=imread("dataset/Sample01/depth/"+to_string(i)+".png",CV_LOAD_IMAGE_ANYDEPTH);
+        colorImg=imread("dataset/Sample02/rgb/"+to_string(i)+".png");
+        depthImg=imread("dataset/Sample02/depth/"+to_string(i)+".png",CV_LOAD_IMAGE_ANYDEPTH);
         i++;
+        
         utl::splitGround(colorImg,depthImg);
+      
+        
         ld::findLane();
+        
+         
         imshow("ground",utl::groundImg);
         imshow("nonGround",utl::nonGroundImg);
-    }while(waitKey(10)!=27);
+        cout<< chrono::duration<double, milli> (std::chrono::system_clock::now()-cur_time).count()<<endl;
+    }while(waitKey(1)!=27);
     return true;
 }
 void init()
