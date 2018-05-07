@@ -28,17 +28,23 @@ void Destroy()
 }
 bool RunCar()
 {
+    int i=0;
     do{
-        ni::openni2_getmat(colorImg, depthImg);
+        //ni::openni2_getmat(colorImg, depthImg);
+        colorImg=imread("dataset/Sample01/rgb/"+to_string(i)+".png");
+        depthImg=imread("dataset/Sample01/depth/"+to_string(i)+".png",CV_LOAD_IMAGE_ANYDEPTH);
+        i++;
         utl::splitGround(colorImg,depthImg);
+        ld::findLane();
         imshow("ground",utl::groundImg);
         imshow("nonGround",utl::nonGroundImg);
-    }while(waitKey(1)!=27);
+    }while(waitKey(10)!=27);
     return true;
 }
 void init()
 {
-    ni::openni2_init();
+    //ni::openni2_init();
     utl::readGroundPlane();
+    utl::getTransformMatrix();
 }
 
