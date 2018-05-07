@@ -1,3 +1,4 @@
+#include <chrono>
 #include <iostream>
 #include <string>
 #include <stdio.h>
@@ -91,10 +92,13 @@ int main(int argc, char *argv[])
     }
     Driver driver;
 
+    Mat color(480, 640, CV_8UC3),
+        depth(480, 640, CV_16UC1);
+
+    Point carPosition(color.cols / 2, color.rows);
+
     while (true)
     {
-        Mat color(480, 640, CV_8UC3),
-            depth(480, 640, CV_16UC1);
         if (argc == 3)
             color = GetImageFromServer();
         else
@@ -103,10 +107,10 @@ int main(int argc, char *argv[])
         if (color.empty() || depth.empty())
             continue;
 
-        Point carPosition(color.cols / 2, color.rows);
-
+        auto cur_time = std::chrono::system_clock::now();
         driver.inputImg(color, depth);
 
+        cout<< chrono::duration<double, milli> (std::chrono::system_clock::now()-cur_time).count()<<endl;
         line(color, driver.target, carPosition, Scalar(255, 255, 255));
 
         Mat adjMap;
