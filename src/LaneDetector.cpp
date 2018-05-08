@@ -86,10 +86,10 @@ void LaneDetector::findLane()
 
 Point LaneDetector::findLanePoint(int hug, Point start)
 {
-    Vec3b red(0, 0, 255);
+    int thresh = 200;
     Point move(hug, 0);
     Point p = start;
-    while (src.at<Vec3b>(p) != red)
+    while (img.at<uchar>(p) < thresh)
     {
         if ((p.x < 0) || (p.x >= img.cols)) return Point(0, 0);
         p += move;
