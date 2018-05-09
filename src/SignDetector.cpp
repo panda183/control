@@ -41,12 +41,12 @@ void sd::DetectSign(Mat &color, Mat &depth)
     Mat gray = range1 | range2 | range3;
     imshow("HSV",gray);
     erode(gray, gray, Mat(), Point(-1, -1), 2, 1, 1);
-    dilate(gray, gray, Mat(), Point(-1, -1), 8, 1, 1);
+    dilate(gray, gray, Mat(), Point(-1, -1), 6, 1, 1);
     imshow("dilate",gray);
 
     int oo = 9999999;
     int NEIGHBOR_DIFF = 30;
-    int RADIUS = 48000;
+    int RADIUS = 18000;
     int min_d = 30000;
     int dx[8] = {-1, -1, -1,  0, 0,  1, 1, 1};
     int dy[8] = {-1,  0,  1, -1, 1, -1, 0, 1};
@@ -97,15 +97,15 @@ void sd::DetectSign(Mat &color, Mat &depth)
             distance /= count;
             int radius = (p_max.y - p_min.y) / 2;
 
-            if (abs(distance * radius - RADIUS) > RADIUS / 7) continue;
+            // if (abs(distance * radius - RADIUS) > RADIUS / 7) continue;
             // cout << avg_depth << endl;
             Rect r = Rect(p_min, p_max);
             r.y -= 3;
             r.x += 1;
             r.width += 1;
-            if (abs(r.height * 1.0 / r.width - 1) > 0.2) continue;
+            // if (abs(r.height * 1.0 / r.width - 1) > 0.2) continue;
 
-            if (distance > min_d) continue;
+            // if (distance > min_d) continue;
             Mat matSign = color(r);
             sign = recognizeSign(matSign);
             min_d = distance;

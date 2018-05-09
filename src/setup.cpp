@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
         imshow("depth", adjMap);
         k = waitKey(100);
         cout << k << endl;
-        if (k ==27 || k==13) break;
+        if (k ==27 || k==10) break;
     } while (1);
     if (k == 27)
         cout << "exiting" << endl;

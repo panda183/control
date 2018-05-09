@@ -106,7 +106,8 @@ void ld::findLane(){
         if(footLane!=0) break;
     }
     if(footLane!=0) xCenterLane=footLane-hugLane*LANE_SIZE/2;    
-    circle(display,Point2f(xCenterLane,lane.rows),5,Scalar(255),-1);
+    circle(display,Point2f(lane.cols/2,lane.rows),3,Scalar(0,255,0),-1);
+    circle(display,Point2f(xCenterLane,lane.rows),3,Scalar(255),-1);
     // if(lanePoints.size()>2){
     //     laneCurve=CurveEstimation(lanePoints);
     // }

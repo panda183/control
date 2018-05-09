@@ -115,7 +115,7 @@ void utl::getTransformMatrix(){
 }
 void utl::readGroundPlane()
 {
-    std::ifstream input(GROUND_PLANE_INPUT);
+    std::ifstream input("ground_plane.txt");
     if (!input.is_open())
         throw "Ground plane not found! Please run Setup first.";
     for (int i = 0; i < 4; i++)
