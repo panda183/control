@@ -1,98 +1,115 @@
 #include "LaneDetector.h"
-#include <algorithm>
-#include <cstring>
-#include <vector>
-#include <queue>
+#include "Utilities.h"
 
-LaneDetector::LaneDetector() {}
-LaneDetector::~LaneDetector() {}
+int ld::xCenterLane=320;
+Vec3f ld::laneCurve;
+int ld::hugLane=1;
 
-void LaneDetector::inputImg(Mat img)
-{
-    if (img.empty())
+Vec3f ld::CurveEstimation(vector<Point2f> lanePoints) {
+    int i, j, k;
+    double X[2 * 2 + 1];                        //Array that will store the values of sigma(xi),sigma(xi^2),sigma(xi^3)....sigma(xi^2n)
+    for (i = 0;i < 2 * 2 + 1;i++)
     {
-        printf("Error: input is empty\n");
-        return;
+        X[i] = 0;
+        for (j = 0;j < lanePoints.size();j++)
+            X[i] = X[i] + pow(lanePoints[j].x, i);        //consecutive positions of the array will store N,sigma(xi),sigma(xi^2),sigma(xi^3)....sigma(xi^2n)
     }
-    src = img;
-    cvtColor(img, this->img, COLOR_RGB2GRAY);
-}
+    double B[2 + 1][2 + 2], a[2 + 1];            //B is the Normal matrix(augmented) that will store the equations, 'a' is for value of the final coefficients
+    for (i = 0;i <= 2;i++)
+        for (j = 0;j <= 2;j++)
+            B[i][j] = X[i + j];            //Build the Normal matrix by storing the corresponding coefficients at the right positions except the last column of the matrix
+    double Y[2 + 1];                    //Array to store the values of sigma(yi),sigma(xi*yi),sigma(xi^2*yi)...sigma(xi^n*yi)
+    for (i = 0;i < 2 + 1;i++)
+    {
+        Y[i] = 0;
+        for (j = 0;j < lanePoints.size();j++)
+            Y[i] = Y[i] + pow(lanePoints[j].x, i)*lanePoints[j].y;        //consecutive positions will store sigma(yi),sigma(xi*yi),sigma(xi^2*yi)...sigma(xi^n*yi)
+    }
+    for (i = 0;i <= 2;i++)
+        B[i][2 + 1] = Y[i];                //load the values of Y as the last column of B(Normal Matrix but augmented)
 
-void LaneDetector::findLane()
-{
-    int THRESHOLD_GREY = 120; // [0 - 255], >threshold is white, otherwise is black
-    int THRESHOLD_LANE_LENGTH = img.rows / 4;
-    int yLimit = img.rows / 4;
-    int oo = 9999999;
-    int dx[8] = {-1, 0, 1, -1, 1, -1 ,0, 1};
-    int dy[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
-
-    int d[img.rows][img.cols];
-    vector<int> fullLength;
-    int index[img.rows][img.cols];
-    vector<int> area;
-    int ind = 0;
-    queue<Point> q;
-
-    for (int i = 0; i < img.rows; i++)
-        for (int j = 0; j < img.cols; j++)
-        {
-            d[i][j] = index[i][j] = oo;
-        }
-    for (int i = yLimit; i < img.rows; i++)
-        for (int j = 0; j < img.cols; j++)
-        {
-            if (img.at<uchar>(i, j) < THRESHOLD_GREY) continue;
-            if (d[i][j] != oo) continue;
-
-            d[i][j] = 0;
-            index[i][j] = ind;
-            int s = 1;
-            fullLength.push_back(1);
-            q.push(Point(i, j));
-
-            while (!q.empty())
-            {
-                Point u = q.front();
-                for (int x = 0; x < 8; x++)
+    for (i = 0;i < 3;i++)                    //From now Gaussian Elimination starts(can be ignored) to solve the set of linear equations (Pivotisation)
+        for (k = i + 1;k < 3;k++)
+            if (B[i][i] < B[k][i])
+                for (j = 0;j <= 3;j++)
                 {
-                    Point v = u + Point(dx[x], dy[x]);
-                    if ((v.x < yLimit) || (v.x >= img.rows) || (v.y < 0) || (v.y >= img.cols)) continue;
-                    if (img.at<uchar>(v.x, v.y) < THRESHOLD_GREY) continue;
-                    if (d[v.x][v.y] != oo) continue;
-                    d[v.x][v.y] = d[u.x][u.y] + 1;
-                    index[v.x][v.y] = ind;
-                    fullLength[ind] = max(fullLength[ind], d[v.x][v.y]);
-                    q.push(v);
-                    s += 1;
+                    double temp = B[i][j];
+                    B[i][j] = B[k][j];
+                    B[k][j] = temp;
                 }
-                q.pop();
-            }
-            area.push_back(s);
-            ind += 1;
-        }
-    
-    Vec3b red(0, 0, 255);
-    for (int i = 0; i < img.rows; i++)
-        for (int j = 0; j < img.cols; j++)
+    for (i = 0;i < 3 - 1;i++)            //loop to perform the gauss elimination
+        for (k = i + 1;k < 3;k++)
         {
-            ind = index[i][j];
-            if (ind == oo) continue;
-            if (area[ind] / fullLength[ind] > img.cols / 17) continue; 
-            //if (fullLength[index[i][j]] < THRESHOLD_LANE_LENGTH) continue;
-            src.at<Vec3b>(i, j) = red;
+            double t = B[k][i] / B[i][i];
+            for (j = 0;j <= 3;j++)
+                B[k][j] = B[k][j] - t * B[i][j];    //make the elements below the pivot elements equal to zero or elimnate the variables
         }
+    for (i = 3 - 1;i >= 0;i--)                //back-substitution
+    {                        //x is an array whose values correspond to the values of x,y,z..
+        a[i] = B[i][3];                //make the variable to be calculated equal to the rhs of the last equation
+        for (j = 0;j < 3;j++)
+            if (j != i)            //then subtract all the lhs values except the coefficient of the variable whose value                                   is being calculated
+                a[i] = a[i] - B[i][j] * a[j];
+        a[i] = a[i] / B[i][i];            //now finally divide the rhs by the coefficient of the variable to be calculated
+    }
+    return Vec3f(a[0], a[1], a[2]);
 }
 
-Point LaneDetector::findLanePoint(int hug, Point start)
-{
-    int thresh = 200;
-    Point move(hug, 0);
-    Point p = start;
-    while (img.at<uchar>(p) < thresh)
+int ld::avgX(Mat &window,int whitePixel){
+    int s=0;
+    for (int i = 0; i < window.cols; ++i)
     {
-        if ((p.x < 0) || (p.x >= img.cols)) return Point(0, 0);
-        p += move;
+        for (int j = 0; j < window.rows; ++j)
+        {
+            if(window.at<uchar>(j,i)==255){
+                s+=i;
+            }
+        }
     }
-    return p;
+    return s/whitePixel;
 }
+void ld::drawCurve(Mat &InputMat,Vec3f &curve){
+    for (int i = 1; i < InputMat.rows; ++i)
+    {
+        line(InputMat,Point(curve[0]+curve[1]*(i-1)+curve[2]*(i-1)*(i-1),i-1),Point(curve[0]+curve[1]*i+curve[2]*i*i,i),Scalar(255,255),3);
+    }
+}
+void ld::findLane(){
+    Mat lane;
+    cvtColor(utl::groundImg,lane , COLOR_BGR2GRAY);
+    warpPerspective(lane, lane, utl::transformMatrix, lane.size());
+    threshold(lane,lane,200,255,CV_THRESH_BINARY);
+    Mat display;
+    cvtColor(lane,display,COLOR_GRAY2BGR);
+
+    Rect windowSlide=Rect(0,0,80,20);
+    int tempXLane=xCenterLane+hugLane*LANE_SIZE/2;
+    int diff=0;
+    //vector<Point2f> lanePoints;
+    int footLane=0;
+    for(int i=0;i<10;i++){
+        Rect curWindow=Rect(tempXLane-windowSlide.width/2,lane.rows-(windowSlide.height*(i+1)),windowSlide.width,windowSlide.height);
+        Mat windowMat=lane(curWindow);
+        int whitePixel=countNonZero(windowMat);
+        if(whitePixel*1.0/(windowSlide.width*windowSlide.height)>0.1&&whitePixel*1.0/(windowSlide.width*windowSlide.height)<0.5){
+            diff=(windowSlide.width/2-avgX(windowMat,whitePixel));
+            circle(display,Point2f(curWindow.x-diff+windowSlide.width/2,lane.rows-(windowSlide.height*(i+1))+windowSlide.height/2),4,Scalar(0,0,255),-1);
+            //lanePoints.push_back(Point2f(lane.rows-(windowSlide.height*(i+1))+windowSlide.height/2,curWindow.x-diff+windowSlide.width/2-hugLane*LANE_SIZE/2));
+            if(footLane==0) footLane=curWindow.x-diff+windowSlide.width/2;
+        }
+        curWindow.x-=diff;
+        tempXLane-=diff;
+        rectangle(display,curWindow,Scalar(255));
+        curWindow.x-=LANE_SIZE*hugLane;
+        rectangle(display,curWindow,Scalar(255));
+        if(footLane!=0) break;
+    }
+    if(footLane!=0) xCenterLane=footLane-hugLane*LANE_SIZE/2;    
+    circle(display,Point2f(xCenterLane,lane.rows),10,Scalar(255),-1);
+    // if(lanePoints.size()>2){
+    //     laneCurve=CurveEstimation(lanePoints);
+    // }
+    // drawCurve(display,laneCurve);
+    imshow("display",display);
+}
+

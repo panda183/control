@@ -31,7 +31,7 @@ void ObstacleDetector::detectObstacle(cv::Mat &color, cv::Mat &depth)
         Point center(rect.x + rect.width / 2, rect.y + rect.height / 2);
         int radius = rect.height / 2;
         int RADIUS = 49500;
-        float HEIGHT = 107;
+        float HEIGHT = 70;
         ushort distance = depth.at<ushort>(center);
         if (abs(RADIUS - radius * distance) > RADIUS / 7) continue;
         // cout << radius << " : " << distance << endl;
@@ -39,7 +39,7 @@ void ObstacleDetector::detectObstacle(cv::Mat &color, cv::Mat &depth)
         Point3f p = utl::getRealPointInWorld(center, distance);
         float signHeight = utl::dToPlane(p, utl::groundPlane);
         if (abs(signHeight - HEIGHT) > 30) continue;
-        cout << "height:" << signHeight << " ";
+        // cout << "height:" << signHeight << " ";
 
         rectangle(color, rect, Scalar(0, 255, 0));
 

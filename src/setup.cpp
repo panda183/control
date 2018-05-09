@@ -1,7 +1,6 @@
 #include <iostream>
 #include <math.h>
 #include <opencv2/opencv.hpp>
-#include "Driver.h"
 #include "Utilities.h"
 #include "OpenNIHelper.h"
 #include <fstream>
@@ -9,7 +8,8 @@
 using namespace std;
 using namespace cv;
 
-Mat color, depth;
+Mat depth(480, 640, CV_16UC1),
+    color(480, 640, CV_8UC3);
 Vec4f groundPlane;       //phuong trinh mat phang
 vector<Point3f> _3Point; //3 diem tren mat phang
 
@@ -38,25 +38,28 @@ void CallBackFunc(int event, int x, int y, int flags, void *userdata)
 }
 int main(int argc, char *argv[])
 {
+    cout << "h" << endl;
     ni::openni2_init();
     namedWindow("depth");
     setMouseCallback("depth", CallBackFunc, NULL);
     cout << "three left-click to choose ground plane" << endl;
     cout << "ENTER to confirm, ESC to cancel" << endl;
-    int k;
-    while (1)
+    int k,i=0;
+    do
     {
         ni::openni2_getmat(color, depth);
-
+        // color=imread("dataset/Sample02/rgb/"+to_string(i)+".png");
+        // depth=imread("dataset/Sample02/depth/"+to_string(i)+".png",CV_LOAD_IMAGE_ANYDEPTH);
+        // i++;
         Mat adjMap;
         convertScaleAbs(depth, adjMap, 255.0 / 6000);
-
         imshow("color", color);
         imshow("depth", adjMap);
-        k = waitKey(1);
-        if (k != -1) break;
-    }
-    if (k != 13)
+        k = waitKey(100);
+        cout << k << endl;
+        if (k != 255) break;
+    } while (1);
+    if (k == 27)
         cout << "exiting" << endl;
     else
     {

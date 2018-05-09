@@ -15,9 +15,8 @@ class Driver
     void inputImg(Mat color, Mat depth);
     double getSteering();
     Point target;
-
   private:
-    LaneDetector ld;
+    //LaneDetector ld;
     ObstacleDetector od;
     Mat color, depth;
     Point lastTarget;
