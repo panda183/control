@@ -1,7 +1,7 @@
 #include "LaneDetector.h"
 #include "Utilities.h"
 
-int ld::xCenterLane=320;
+int ld::xCenterLane=160;
 Vec3f ld::laneCurve;
 int ld::hugLane=1;
 
@@ -81,17 +81,18 @@ void ld::findLane(){
     threshold(lane,lane,200,255,CV_THRESH_BINARY);
     Mat display;
     cvtColor(lane,display,COLOR_GRAY2BGR);
-
+   
     Rect windowSlide=Rect(0,0,40,10);
     int tempXLane=xCenterLane+hugLane*LANE_SIZE/2;
     int diff=0;
     //vector<Point2f> lanePoints;
     int footLane=0;
-    for(int i=0;i<10;i++){
+    for(int i=0;i<5;i++){
         Rect curWindow=Rect(tempXLane-windowSlide.width/2,lane.rows-(windowSlide.height*(i+1)),windowSlide.width,windowSlide.height);
-        Mat windowMat=lane(curWindow);
+        
+        Mat windowMat=lane(curWindow); 
         int whitePixel=countNonZero(windowMat);
-        if(whitePixel*1.0/(windowSlide.width*windowSlide.height)>0.1&&whitePixel*1.0/(windowSlide.width*windowSlide.height)<0.5){
+        if(whitePixel*1.0/(windowSlide.width*windowSlide.height)>0.02&&whitePixel*1.0/(windowSlide.width*windowSlide.height)<0.5){
             diff=(windowSlide.width/2-avgX(windowMat,whitePixel));
             circle(display,Point2f(curWindow.x-diff+windowSlide.width/2,lane.rows-(windowSlide.height*(i+1))+windowSlide.height/2),4,Scalar(0,0,255),-1);
             //lanePoints.push_back(Point2f(lane.rows-(windowSlide.height*(i+1))+windowSlide.height/2,curWindow.x-diff+windowSlide.width/2-hugLane*LANE_SIZE/2));
@@ -105,7 +106,7 @@ void ld::findLane(){
         if(footLane!=0) break;
     }
     if(footLane!=0) xCenterLane=footLane-hugLane*LANE_SIZE/2;    
-    circle(display,Point2f(xCenterLane,lane.rows),10,Scalar(255),-1);
+    circle(display,Point2f(xCenterLane,lane.rows),5,Scalar(255),-1);
     // if(lanePoints.size()>2){
     //     laneCurve=CurveEstimation(lanePoints);
     // }

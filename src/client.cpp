@@ -33,12 +33,12 @@ bool RunCar()
         auto cur_time = std::chrono::system_clock::now();
         ni::openni2_getmat(colorImg, depthImg);
         utl::splitGround(colorImg,depthImg);
-        cout << "h" << endl;
         ld::findLane();
         float deltaTime=chrono::duration<double, milli> (std::chrono::system_clock::now()-cur_time).count();
         D=((ld::xCenterLane-160)-P)/deltaTime;
         P=(ld::xCenterLane-160);
         angle=P+D;
+        cout<<angle<<endl;
         imshow("ground",utl::groundImg);
         imshow("nonGround",utl::nonGroundImg);
     }while(waitKey(1)!=27);

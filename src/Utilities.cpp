@@ -48,7 +48,7 @@ cv::Point2f utl::worldToScreen(cv::Point3f world){
     float px = 2.0 * world.z * tan(60.0 * PI / (180.0 * 2)); //fovH
     float py = 2.0 * world.z * tan(49.5 * PI / (180.0 * 2)); //fovV
     
-    return cv::Point2f(320/2-world.x*320.0/px,240/2-world.y*320.0/py);
+    return cv::Point2f(320.0/2-world.x*320.0/px,240.0/2-world.y*320.0/py);
 }
 //Khoang cach tu diem toi mat phang
 float utl::dToPlane(cv::Point3f p, cv::Vec4f plane)
@@ -74,8 +74,8 @@ cv::Point3f utl::getRealPointInWorld(cv::Point screenPoint, int depth)
     cv::Point3f res;
     float px = 2.0 * depth * tan(60.0 * PI / (180.0 * 2)); //fovH
     float py = 2.0 * depth * tan(49.5 * PI / (180.0 * 2)); //fovV
-    res.x = ((320/2 - screenPoint.x) / 320.0) * px;
-    res.y = ((240/2 - screenPoint.y) / 240.0) * py;
+    res.x = ((320.0/2 - screenPoint.x) / 320.0) * px;
+    res.y = ((240.0/2 - screenPoint.y) / 240.0) * py;
     res.z = depth;
     return res;
 }
@@ -110,7 +110,6 @@ void utl::getTransformMatrix(){
     outputQuad[1] = Point2f((320-LANE_SIZE)/2+LANE_SIZE, 240);
     outputQuad[2] = Point2f((320-LANE_SIZE)/2, 0);
     outputQuad[3] = Point2f((320-LANE_SIZE)/2+LANE_SIZE, 0);
-
     // Get the Perspective Transform Matrix i.e. lambda
     utl::transformMatrix=getPerspectiveTransform(inputQuad, outputQuad);
 }
