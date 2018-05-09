@@ -82,7 +82,7 @@ void ld::findLane(){
     Mat display;
     cvtColor(lane,display,COLOR_GRAY2BGR);
 
-    Rect windowSlide=Rect(0,0,80,20);
+    Rect windowSlide=Rect(0,0,40,10);
     int tempXLane=xCenterLane+hugLane*LANE_SIZE/2;
     int diff=0;
     //vector<Point2f> lanePoints;

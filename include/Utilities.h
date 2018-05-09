@@ -4,7 +4,7 @@
 #include "opencv2/opencv.hpp"
 #define PI 3.14159
 #define GROUND_PLANE_INPUT "ground_plane.txt"
-#define LANE_SIZE 150
+#define LANE_SIZE 75
 
 using namespace cv;
 
