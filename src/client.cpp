@@ -40,7 +40,7 @@ bool RunCar()
         angle=P+D;
         cout<<angle<<endl;
         imshow("ground",utl::groundImg);
-        imshow("nonGround",utl::nonGroundImg);
+        
     }while(waitKey(1)!=27);
     return true;
 }
