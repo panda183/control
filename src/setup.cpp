@@ -38,7 +38,7 @@ void CallBackFunc(int event, int x, int y, int flags, void *userdata)
 }
 int main(int argc, char *argv[])
 {
-    //ni::openni2_init();
+    ni::openni2_init();
     namedWindow("depth");
     setMouseCallback("depth", CallBackFunc, NULL);
     cout << "three left-click to choose ground plane" << endl;
@@ -46,15 +46,15 @@ int main(int argc, char *argv[])
     int k,i=0;
     while (1)
     {
-        //ni::openni2_getmat(color, depth);
-        color=imread("dataset/Sample02/rgb/"+to_string(i)+".png");
-        depth=imread("dataset/Sample02/depth/"+to_string(i)+".png",CV_LOAD_IMAGE_ANYDEPTH);
-        i++;
+        ni::openni2_getmat(color, depth);
+        // color=imread("dataset/Sample02/rgb/"+to_string(i)+".png");
+        // depth=imread("dataset/Sample02/depth/"+to_string(i)+".png",CV_LOAD_IMAGE_ANYDEPTH);
+        // i++;
         Mat adjMap;
         convertScaleAbs(depth, adjMap, 255.0 / 6000);
         imshow("color", color);
         imshow("depth", adjMap);
-        k = waitKey(100);
+        k = waitKey(10);
         if (k != -1) break;
     }
     if (k == 27)
@@ -68,6 +68,6 @@ int main(int argc, char *argv[])
         cout << "ground plane writen to " << GROUND_PLANE_INPUT << endl;
         cout << "exiting" << endl;
     }
-    //ni::openni2_destroy();
+    ni::openni2_destroy();
     return 0;
 }

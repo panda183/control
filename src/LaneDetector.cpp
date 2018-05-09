@@ -3,7 +3,7 @@
 
 int ld::xCenterLane=320;
 Vec3f ld::laneCurve;
-int ld::hugLane=-1;
+int ld::hugLane=1;
 
 Vec3f ld::CurveEstimation(vector<Point2f> lanePoints) {
     int i, j, k;

@@ -28,29 +28,24 @@ void Destroy()
 }
 bool RunCar()
 {
-    int i=0;
+    float P=0,D=0,angle=0;
     do{
         auto cur_time = std::chrono::system_clock::now();
-        //ni::openni2_getmat(colorImg, depthImg);
-        colorImg=imread("dataset/Sample02/rgb/"+to_string(i)+".png");
-        depthImg=imread("dataset/Sample02/depth/"+to_string(i)+".png",CV_LOAD_IMAGE_ANYDEPTH);
-        i++;
-        
+        ni::openni2_getmat(colorImg, depthImg);
         utl::splitGround(colorImg,depthImg);
-      
-        
         ld::findLane();
-        
-         
+        float deltaTime=chrono::duration<double, milli> (std::chrono::system_clock::now()-cur_time).count();
+        D=((ld::xCenterLane-320)-P)/deltaTime;
+        P=(ld::xCenterLane-320);
+        angle=P+D;
         imshow("ground",utl::groundImg);
         imshow("nonGround",utl::nonGroundImg);
-        cout<< chrono::duration<double, milli> (std::chrono::system_clock::now()-cur_time).count()<<endl;
     }while(waitKey(1)!=27);
     return true;
 }
 void init()
 {
-    //ni::openni2_init();
+    ni::openni2_init();
     utl::readGroundPlane();
     utl::getTransformMatrix();
 }
