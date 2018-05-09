@@ -24,7 +24,7 @@ void utl::splitGround(cv::Mat &colorImg,cv::Mat &depth){
                 nonGroundImg.at<Vec3b>(j,i)=Vec3b(0,0,0);
             }
         }
-    }
+    } 
 }
 double utl::computeAngle(cv::Point A, cv::Point O, cv::Point B)
 {
