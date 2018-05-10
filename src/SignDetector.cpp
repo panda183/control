@@ -4,6 +4,7 @@ using namespace std;
 Mat sd::leftSign, sd::rightSign, sd::stopSign;
 int sd::sign;
 
+
 void sd::init()
 {
     leftSign = imread("img/left.jpg");
@@ -38,7 +39,7 @@ void sd::DetectSign(Mat &color, Mat &depth)
     imshow("HSV",gray);
     erode(gray, gray, Mat(), Point(-1, -1), 1, 1, 1);
     dilate(gray, gray, Mat(), Point(-1, -1), 4, 1, 1);
-    imshow("dilate",gray);
+  imshow("dilate",gray);
     vector<vector<Point>> contours;
     findContours(gray, contours, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
     ushort minDistance = 30000;
@@ -54,14 +55,14 @@ void sd::DetectSign(Mat &color, Mat &depth)
         Point center(rect.x + rect.width / 2, rect.y + rect.height / 2);
         int radius = rect.height / 2;
         int RADIUS = 24000;
-        float HEIGHT = 72;
+        float HEIGHT = 310;
         ushort distance = depth.at<ushort>(center);
         if (abs(RADIUS - radius * distance) > RADIUS / 7) continue;
         // cout << radius << " : " << distance << endl;
 
         Point3f p = utl::getRealPointInWorld(center, distance);
         float signHeight = utl::dToPlane(p, utl::groundPlane);
-        // if (abs(signHeight - HEIGHT) > 30) continue;
+        if (abs(signHeight - HEIGHT) > 30) continue;
         cout << "height:" << signHeight << " ";
 
         rectangle(color, rect, Scalar(0, 0, 255));
@@ -87,7 +88,7 @@ int sd::recognizeSign(Mat &sign)
     double p_stop = similar(sign, stopSign);
     double p_max = max(p_left, max(p_right, p_stop));
 
-    if (p_max < 0.5) return NO_SIGN;
+    if (p_max < 0.35) return NO_SIGN;
     cout << p_max << " ";
     if (p_max == p_left) return LEFT;
     if (p_max == p_right) return RIGHT;

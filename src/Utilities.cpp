@@ -5,7 +5,8 @@ cv::Vec4f utl::groundPlane;
 cv::Mat utl::groundImg=Mat::zeros(240,320,CV_8UC3)
         ,utl::nonGroundImg=Mat::zeros(240,320,CV_8UC3);
 cv::Mat utl::transformMatrix;
-
+cv::Mat utl::videoFrame=Mat::zeros(480,640,CV_8UC3);
+cv::VideoWriter utl::writer;
 void utl::splitGround(cv::Mat &colorImg,cv::Mat &depth){
     for(int i=0;i<colorImg.cols;i++){
         for(int j=0;j<colorImg.rows;j++){

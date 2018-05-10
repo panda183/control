@@ -112,6 +112,7 @@ void ld::findLane(){
     //     laneCurve=CurveEstimation(lanePoints);
     // }
     // drawCurve(display,laneCurve);
-    imshow("display",display);
+    //imshow("display",display);
+    display.copyTo(utl::videoFrame(cv::Rect(320,0,320, 240)));
 }
 

@@ -5,16 +5,20 @@
 #include "iostream"
 #define PI 3.14159
 #define GROUND_PLANE_INPUT "../../ground_plane.txt"
-#define LANE_SIZE 75
+#define LANE_SIZE 68
 
 using namespace cv;
 using namespace std;
 
 namespace utl
 {
+
 extern cv::Vec4f groundPlane;
 extern cv::Mat groundImg,nonGroundImg;
 extern cv::Mat transformMatrix;
+extern cv::Mat videoFrame;
+extern cv::Mat videoFrame;
+extern cv::VideoWriter writer;
 
 void splitGround(cv::Mat &colorImg,cv::Mat &depth);
 double computeAngle(cv::Point A, cv::Point O, cv::Point B);

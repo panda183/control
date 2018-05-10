@@ -8,8 +8,8 @@
 using namespace std;
 using namespace cv;
 
-Mat depth(480, 640, CV_16UC1),
-    color(480, 640, CV_8UC3);
+Mat depth(240, 320, CV_16UC1),
+    color(240, 320, CV_8UC3);
 Vec4f groundPlane;       //phuong trinh mat phang
 vector<Point3f> _3Point; //3 diem tren mat phang
 
@@ -38,7 +38,6 @@ void CallBackFunc(int event, int x, int y, int flags, void *userdata)
 }
 int main(int argc, char *argv[])
 {
-    cout << "h" << endl;
     ni::openni2_init();
     namedWindow("depth");
     setMouseCallback("depth", CallBackFunc, NULL);
@@ -56,7 +55,6 @@ int main(int argc, char *argv[])
         imshow("color", color);
         imshow("depth", adjMap);
         k = waitKey(100);
-        cout << k << endl;
         if (k ==27 || k==10) break;
     } while (1);
     if (k == 27)
@@ -64,6 +62,8 @@ int main(int argc, char *argv[])
     else
     {
         ofstream output(GROUND_PLANE_INPUT);
+        if (!output.is_open())
+            throw "Ground plane not found! Please run Setup first.";
         for (int i = 0; i < 4; i++)
             output << groundPlane[i] << " ";
         output.close();
