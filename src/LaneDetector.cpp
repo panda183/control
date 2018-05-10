@@ -1,8 +1,9 @@
 #include "LaneDetector.h"
 #include "Utilities.h"
 
-int ld::xCenterLane=320;
+int ld::xCenterLane=160;
 Vec3f ld::laneCurve;
+int ld::hugLane=1;
 
 Vec3f ld::CurveEstimation(vector<Point2f> lanePoints) {
     int i, j, k;
@@ -54,50 +55,6 @@ Vec3f ld::CurveEstimation(vector<Point2f> lanePoints) {
     return Vec3f(a[0], a[1], a[2]);
 }
 
-Mat ld::birdView(Mat &input,Vec4f groundPlane)
-{
-    Point3f M,N,P,Q;
-    M=utl::rayCastGroundPlane(Point(0,480),groundPlane);
-    N=utl::rayCastGroundPlane(Point(640,480),groundPlane);
-    Point3f vAB,vAC,vu;
-    vAB=N-M;
-    vAC=cv::Point3f(groundPlane[0],groundPlane[1],groundPlane[2]);
-    vu = cv::Vec3f(vAB.y * vAC.z - vAB.z * vAC.y, vAB.z * vAC.x - vAB.x * vAC.z, vAB.x * vAC.y - vAB.y * vAC.x);
-    double dVu=sqrt(vu.x*vu.x+vu.y*vu.y+vu.z*vu.z);
-    double dMN=sqrt(vAB.x*vAB.x+vAB.y*vAB.y+vAB.z*vAB.z);
-    cout<<"1 pixel="<<dMN/LANE_SIZE<<"mm"<<endl;
-    P=M-vu*((dMN/LANE_SIZE*480)/dVu);
-    Q=N-vu*((dMN/LANE_SIZE*480)/dVu);
-    Mat output;
-    // Input Quadilateral or Image plane coordinates
-    Point2f inputQuad[4];
-    // Output Quadilateral or World plane coordinates
-    Point2f outputQuad[4];
-    // Lambda Matrix
-    Mat lambda;
-    // Set the lambda matrix the same type and size as input
-    lambda = Mat::zeros(input.rows, input.cols, input.type());
-    // The 4 points that select quadilateral on the input , from top-left in clockwise order
-    // These four pts are the sides of the rect box used as input
-    inputQuad[0] = Point2f(0, 480);
-    inputQuad[1] = Point2f(640, 480);
-    inputQuad[2] = utl::worldToScreen(P);
-    inputQuad[3] = utl::worldToScreen(Q);
-    // The 4 points where the mapping is to be done , from top-left in clockwise order
-    outputQuad[0] = Point2f((640-LANE_SIZE)/2, 480);
-    outputQuad[1] = Point2f((640-LANE_SIZE)/2+LANE_SIZE, 480);
-    outputQuad[2] = Point2f((640-LANE_SIZE)/2, 0);
-    outputQuad[3] = Point2f((640-LANE_SIZE)/2+LANE_SIZE, 0);
-
-    // Get the Perspective Transform Matrix i.e. lambda
-    lambda = getPerspectiveTransform(inputQuad, outputQuad);
-    warpPerspective(input, output, lambda, output.size());
-    
-    cvtColor(output, output, COLOR_BGR2GRAY);
-    threshold(output, output, 200, 255, CV_THRESH_BINARY);
-    imshow("op",output);
-    return output;  
-}
 int ld::avgX(Mat &window,int whitePixel){
     int s=0;
     for (int i = 0; i < window.cols; ++i)
@@ -117,37 +74,45 @@ void ld::drawCurve(Mat &InputMat,Vec3f &curve){
         line(InputMat,Point(curve[0]+curve[1]*(i-1)+curve[2]*(i-1)*(i-1),i-1),Point(curve[0]+curve[1]*i+curve[2]*i*i,i),Scalar(255,255),3);
     }
 }
-void ld::findLane(Mat &lane,int laneFollow){
+void ld::findLane(){
+    Mat lane;
+    cvtColor(utl::groundImg,lane , COLOR_BGR2GRAY);
+    warpPerspective(lane, lane, utl::transformMatrix, lane.size());
+    threshold(lane,lane,200,255,CV_THRESH_BINARY);
     Mat display;
     cvtColor(lane,display,COLOR_GRAY2BGR);
-    int laneSize=150;
-    Rect windowSlide=Rect(0,0,80,20);
-    int tempXLane=xCenterLane+laneFollow*laneSize/2;
+   
+    Rect windowSlide=Rect(0,0,40,10);
+    int tempXLane=xCenterLane+hugLane*LANE_SIZE/2;
     int diff=0;
-    vector<Point2f> lanePoints;
+    //vector<Point2f> lanePoints;
     int footLane=0;
-    for(int i=0;i<10;i++){
+    for(int i=0;i<5;i++){
         Rect curWindow=Rect(tempXLane-windowSlide.width/2,lane.rows-(windowSlide.height*(i+1)),windowSlide.width,windowSlide.height);
-        Mat windowMat=lane(curWindow);
+        
+        Mat windowMat=lane(curWindow); 
         int whitePixel=countNonZero(windowMat);
-        if(whitePixel*1.0/(windowSlide.width*windowSlide.height)>0.02&&whitePixel*1.0/(windowSlide.width*windowSlide.height)<0.2){
+        if(whitePixel*1.0/(windowSlide.width*windowSlide.height)>0.02&&whitePixel*1.0/(windowSlide.width*windowSlide.height)<0.5){
             diff=(windowSlide.width/2-avgX(windowMat,whitePixel));
             circle(display,Point2f(curWindow.x-diff+windowSlide.width/2,lane.rows-(windowSlide.height*(i+1))+windowSlide.height/2),4,Scalar(0,0,255),-1);
-            lanePoints.push_back(Point2f(lane.rows-(windowSlide.height*(i+1))+windowSlide.height/2,curWindow.x-diff+windowSlide.width/2-laneFollow*laneSize/2));
+            //lanePoints.push_back(Point2f(lane.rows-(windowSlide.height*(i+1))+windowSlide.height/2,curWindow.x-diff+windowSlide.width/2-hugLane*LANE_SIZE/2));
             if(footLane==0) footLane=curWindow.x-diff+windowSlide.width/2;
         }
         curWindow.x-=diff;
         tempXLane-=diff;
         rectangle(display,curWindow,Scalar(255));
-        curWindow.x-=laneSize*laneFollow;
+        curWindow.x-=LANE_SIZE*hugLane;
         rectangle(display,curWindow,Scalar(255));
+        if(footLane!=0) break;
     }
-    if(footLane!=0) xCenterLane=footLane-laneFollow*laneSize/2;    
-    circle(display,Point2f(xCenterLane,lane.rows),10,Scalar(255),-1);
-    if(lanePoints.size()>2){
-        laneCurve=CurveEstimation(lanePoints);
-    }
-    drawCurve(display,laneCurve);
-    imshow("display",display);
+    if(footLane!=0) xCenterLane=footLane-hugLane*LANE_SIZE/2;    
+    circle(display,Point2f(lane.cols/2,lane.rows),3,Scalar(0,255,0),-1);
+    circle(display,Point2f(xCenterLane,lane.rows),3,Scalar(255),-1);
+    // if(lanePoints.size()>2){
+    //     laneCurve=CurveEstimation(lanePoints);
+    // }
+    // drawCurve(display,laneCurve);
+    //imshow("display",display);
+    display.copyTo(utl::videoFrame(cv::Rect(320,0,320, 240)));
 }
 

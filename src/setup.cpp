@@ -3,14 +3,13 @@
 #include <opencv2/opencv.hpp>
 #include "Utilities.h"
 #include "OpenNIHelper.h"
-#include "LaneDetector.h"
 #include <fstream>
 
 using namespace std;
 using namespace cv;
 
-Mat depth(480, 640, CV_16UC1),
-    color(480, 640, CV_8UC3);
+Mat depth(240, 320, CV_16UC1),
+    color(240, 320, CV_8UC3);
 Vec4f groundPlane;       //phuong trinh mat phang
 vector<Point3f> _3Point; //3 diem tren mat phang
 
@@ -28,7 +27,6 @@ void CallBackFunc(int event, int x, int y, int flags, void *userdata)
         {
             groundPlane = utl::findPlaneEquation(_3Point);
             cout << "Plane:" << groundPlane << endl;
-            ld::birdView(color,groundPlane);
             _3Point.clear();
         }
     }
@@ -45,22 +43,27 @@ int main(int argc, char *argv[])
     setMouseCallback("depth", CallBackFunc, NULL);
     cout << "three left-click to choose ground plane" << endl;
     cout << "ENTER to confirm, ESC to cancel" << endl;
-    int k;
-    while (1)
+    int k,i=0;
+    do
     {
         ni::openni2_getmat(color, depth);
+        // color=imread("dataset/Sample02/rgb/"+to_string(i)+".png");
+        // depth=imread("dataset/Sample02/depth/"+to_string(i)+".png",CV_LOAD_IMAGE_ANYDEPTH);
+        // i++;
         Mat adjMap;
         convertScaleAbs(depth, adjMap, 255.0 / 6000);
         imshow("color", color);
         imshow("depth", adjMap);
-        k = waitKey(1);
-        if (k != -1) break;
-    }
+        k = waitKey(100);
+        if (k ==27 || k==10) break;
+    } while (1);
     if (k == 27)
         cout << "exiting" << endl;
     else
     {
         ofstream output(GROUND_PLANE_INPUT);
+        if (!output.is_open())
+            throw "Ground plane not found! Please run Setup first.";
         for (int i = 0; i < 4; i++)
             output << groundPlane[i] << " ";
         output.close();

@@ -4,6 +4,7 @@ using namespace std;
 Mat sd::leftSign, sd::rightSign, sd::stopSign;
 int sd::sign;
 
+
 void sd::init()
 {
     leftSign = imread("img/left.jpg");
@@ -11,18 +12,17 @@ void sd::init()
     stopSign = imread("img/stop.png");
 }
 
-void sd::DetectSign(Mat &depth)
+void sd::DetectSign(Mat &color, Mat &depth)
 {
-    Mat color = utl::nonGroundImg;
+    cout << "hello" << endl;
     int cols = color.cols;
     int rows = color.rows;
     Mat hsv, range1, range2, range3;
-    Rect roiDetect = Rect(int(cols * 0.1), int(rows * 0.1), int(cols * 0.8), int(rows * 0.8));
-    rectangle(color, roiDetect, Scalar(0, 0, 255));
-    cvtColor(color(roiDetect), hsv, COLOR_BGR2HSV);
+    
+    cvtColor(color, hsv, COLOR_BGR2HSV);
     int minS = 100, maxS = 255,
-        minV = 100, maxV = 255,
-        minH_1 = 50, maxH_1 = 135,
+        minV = 60, maxV = 255,
+        minH_1 = 95, maxH_1 = 135,
         minH_2 = 0, maxH_2 = 10,
         minH_3 = 170, maxH_3 = 180;
 
@@ -35,11 +35,15 @@ void sd::DetectSign(Mat &depth)
     inRange(hsv, min1, max1, range1);
     inRange(hsv, min2, max2, range2);
     inRange(hsv, min3, max3, range3);
-    Mat gray = range1 | range2 | range3;
-    imshow("HSV",gray);
-    erode(gray, gray, Mat(), Point(-1, -1), 2, 1, 1);
-    dilate(gray, gray, Mat(), Point(-1, -1), 8, 1, 1);
-    imshow("dilate",gray);
+    Mat gray = range1;// | range2 | range3;
+    // imshow("HSV",gray);
+    erode(gray, gray, Mat(), Point(-1, -1), 1, 1, 1);
+    dilate(gray, gray, Mat(), Point(-1, -1), 4, 1, 1);
+    // imshow("dilate",gray);
+    Mat display;
+    cvtColor(gray,display,COLOR_GRAY2BGR);
+    display.copyTo(utl::videoFrame(cv::Rect(0,240,320, 240)));
+
     vector<vector<Point>> contours;
     findContours(gray, contours, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
     ushort minDistance = 30000;
@@ -47,28 +51,27 @@ void sd::DetectSign(Mat &depth)
     for (int i = 0; i < contours.size(); i++)
     {
         Rect rect = boundingRect(contours[i]);
-        if (abs((rect.width * 1.0 / rect.height) - 1) > 0.2) continue;
-        rect.x += roiDetect.x + 6;
-        rect.y += roiDetect.y + 6;
-        rect.width -= 6 * 2;
-        rect.height -= 6 * 2;
+        if (abs((rect.width * 1.0 / rect.height) - 1) > 0.1) continue;
+        rect.x += 3;
+        rect.y += 3;
+        rect.width -= 3 * 2;
+        rect.height -= 3 * 2;
         Point center(rect.x + rect.width / 2, rect.y + rect.height / 2);
         int radius = rect.height / 2;
-        int RADIUS = 67000;
-        // int RADIUS = 48000;
-        float HEIGHT = 72;
+        int RADIUS = 24000;
+        float HEIGHT = 310;
         ushort distance = depth.at<ushort>(center);
         if (abs(RADIUS - radius * distance) > RADIUS / 7) continue;
         // cout << radius << " : " << distance << endl;
 
         Point3f p = utl::getRealPointInWorld(center, distance);
         float signHeight = utl::dToPlane(p, utl::groundPlane);
-        // if (abs(signHeight - HEIGHT) > 30) continue;
+        if (abs(signHeight - HEIGHT) > 30) continue;
         cout << "height:" << signHeight << " ";
 
         rectangle(color, rect, Scalar(0, 0, 255));
         Mat matsign = color(rect);
-        imshow("matsign", matsign);
+        // imshow("matsign", matsign);
 
         int tmp = recognizeSign(matsign);
         if (tmp == NO_SIGN) continue;
@@ -89,7 +92,7 @@ int sd::recognizeSign(Mat &sign)
     double p_stop = similar(sign, stopSign);
     double p_max = max(p_left, max(p_right, p_stop));
 
-    if (p_max < 0.5) return NO_SIGN;
+    if (p_max < 0.35) return NO_SIGN;
     cout << p_max << " ";
     if (p_max == p_left) return LEFT;
     if (p_max == p_right) return RIGHT;

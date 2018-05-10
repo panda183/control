@@ -19,18 +19,17 @@ void Driver::setHug(int hug)
 
 void Driver::inputImg(Mat color, Mat depth)
 {
-    //this->ld.inputImg(color);
+    this->ld.inputImg(color);
     this->color = color;
     this->depth = depth;
     sd::DetectSign(color, depth);
-    this->od.detectObstacle(color, depth);
+    // this->od.detectObstacle(color, depth);
     if (sd::sign)
     {
         hug = sd::sign;
         this->signOverride = 15;
     }
-    //ld.findLane();
-    //findTarget();
+    findTarget();
 }
 
 void Driver::findTarget()
@@ -65,6 +64,7 @@ void Driver::findTarget()
         target = lastTarget;
         return;
     }
+    circle(this->color, target, 3, Scalar(0, 255, 0), 3);
 }
 
 double Driver::getSteering()
