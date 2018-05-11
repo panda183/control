@@ -96,7 +96,7 @@ void ld::findLane(){
             diff=(windowSlide.width/2-avgX(windowMat,whitePixel));
             circle(display,Point2f(curWindow.x-diff+windowSlide.width/2,lane.rows-(windowSlide.height*(i+1))+windowSlide.height/2),4,Scalar(0,0,255),-1);
             //lanePoints.push_back(Point2f(lane.rows-(windowSlide.height*(i+1))+windowSlide.height/2,curWindow.x-diff+windowSlide.width/2-hugLane*LANE_SIZE/2));
-            if(footLane==0) footLane=curWindow.x-diff+windowSlide.width/2;
+            if(footLane==0&&curWindow.y<lane.rows-curWindow.height*3) footLane=curWindow.x-diff+windowSlide.width/2;
         }
         curWindow.x-=diff;
         tempXLane-=diff;

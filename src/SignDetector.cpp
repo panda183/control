@@ -61,7 +61,7 @@ void sd::DetectSign(Mat &color, Mat &depth)
         int RADIUS = 24000;
         float HEIGHT = 310;
         ushort distance = depth.at<ushort>(center);
-        if (abs(RADIUS - radius * distance) > RADIUS / 7) continue;
+        if (abs(RADIUS - radius * distance) > RADIUS / 5) continue;
         // cout << radius << " : " << distance << endl;
 
         Point3f p = utl::getRealPointInWorld(center, distance);
